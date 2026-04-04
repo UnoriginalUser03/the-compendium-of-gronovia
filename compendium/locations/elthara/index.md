@@ -1,2 +1,0 @@
-# Elthara
-Welcome to Elthara!

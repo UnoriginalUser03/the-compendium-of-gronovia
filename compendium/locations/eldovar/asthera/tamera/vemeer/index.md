@@ -1,0 +1,2 @@
+# Venmeer
+A sprawling port city. A hub for all trade in [Tamera](/compendium/locations/eldovar/asthera/tamera) and the capital. The outskirts of town are poorer, and the hill on which the prestigious [Arlington School of Magic](/compendium/locations/eldovar/asthera/tamera/vemeer/arlington-school) sits has a presence that is felt across the city.

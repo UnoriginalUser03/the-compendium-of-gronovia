@@ -1,0 +1,2 @@
+# Tamera
+The province of Tamera stretches from the Western shores where Asthera meets the Severond sea to the beginnings of the Edermonte forests. A natural border of rugged mountains and dangerous forests separates the duchy from the others. 

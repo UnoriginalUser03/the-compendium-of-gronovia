@@ -24,7 +24,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "three": "^0.183.2",
-    "vanta": "^0.5.24"
+    "vanta": "^0.5.24",
+    "yet-another-react-lightbox": "^3.30.1"
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "3.9.2",

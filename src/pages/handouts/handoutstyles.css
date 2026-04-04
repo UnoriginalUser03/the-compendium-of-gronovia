@@ -1,0 +1,85 @@
+/* PAGE TITLE */
+.handouts-title {
+  text-align: center;
+  margin: 1.5rem 0 2rem 0;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+/* FILTER BAR */
+.tag-filters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+.tag-filters button {
+  margin: 0.25rem 0.5rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 6px;
+  border: none;
+  background: var(--ifm-tabs-color);
+  color: var(--ifm-font-color-base-inverse);
+  cursor: pointer;
+}
+.tag-filters button.active {
+  background: var(--ifm-tabs-color-active);
+}
+
+/* GRID */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+/* CARD */
+.card {
+  cursor: pointer;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--ifm-card-background-color);
+  padding: 0.5rem;
+  text-align: center;
+}
+
+/* THUMBNAIL */
+.card img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+}
+
+/* TEXT */
+.card h3 {
+  margin: 0.3rem 0;
+  font-size: 1rem;
+}
+.card p {
+  font-size: 0.85rem;
+  color: var(--ifm-font-color-secondary);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* LOAD MORE BUTTON */
+.load-more-container {
+  text-align: center;
+  margin: 1.5rem 0;
+}
+.load-more-button {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: none;
+  background: var(--ifm-color-primary);
+  color: white;
+  cursor: pointer;
+}
+.load-more-button:hover {
+  background: var(--ifm-color-secondary);
+}
