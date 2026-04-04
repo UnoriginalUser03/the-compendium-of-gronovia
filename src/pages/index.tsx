@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, type ReactNode } from 'react';
+import { useEffect, useState, useRef, type ReactNode, use } from 'react';
 import clsx from 'clsx';
 import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
@@ -7,6 +7,7 @@ import HomepageFeatures from '../components/HomepageFeatures';
 import Heading from '@theme/Heading';
 import { motion } from 'framer-motion';
 import Logo from '@site/static/img/logo.svg';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
 import styles from './index.module.css';
 // @ts-ignore
@@ -14,13 +15,14 @@ import CLOUDS2 from 'vanta/dist/vanta.clouds2.min';
 
 function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();
-  const [vantaEffect, setVantaEffect] = useState(null)
-  const myRef = useRef(null)
+  const [vantaEffect, setVantaEffect] = useState(null);
+  const texture = useBaseUrl('/img/noise.jpg');
+  const myRef = useRef(null);
   useEffect(() => {
     if (!vantaEffect) {
       setVantaEffect(CLOUDS2({
         el: myRef.current,
-        texturePath: '/img/noise.jpg',
+        texturePath: texture,
         scale: 1.0,
       }))
     }

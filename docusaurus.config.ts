@@ -15,14 +15,14 @@ const config: Config = {
   },
 
   // Set the production url of your site here
-  url: 'https://unoriginalbeing03.github.io/',
+  url: 'https://unoriginaluser03.github.io/',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/the-compendium-of-gronovia/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'unoriginalbeing03', // Usually your GitHub org/user name.
+  organizationName: 'unoriginaluser03', // Usually your GitHub org/user name.
   projectName: 'the-compendium-of-gronovia', // Usually your repo name.
   deploymentBranch: 'gh-pages',
 
