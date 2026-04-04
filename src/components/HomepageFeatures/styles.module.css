@@ -1,0 +1,25 @@
+.features {
+  display: flex;
+  align-items: center;
+  padding: 2rem 0;
+  width: 100%;
+}
+
+.featureSvg {
+  width: 200px;
+  height: 160px;
+  object-fit: fill;
+}
+
+.featureLink {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  padding: 1rem;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.featureLink:hover {
+  background: var(--ifm-hover-overlay);
+}
