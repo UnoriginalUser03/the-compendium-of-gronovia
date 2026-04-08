@@ -19,11 +19,11 @@ jobs:
           fetch-depth: 0        # fetch all branches and history
           persist-credentials: true # allows push using GITHUB_TOKEN
 
-      # Step 2: Setup Node.js (latest)
+      # Step 2: Setup Node.js (latest LTS)
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 'lts/*' # latest LTS version
+          node-version: 'lts/*'
 
       # Step 3: Install dependencies
       - name: Install dependencies
@@ -35,6 +35,12 @@ jobs:
           echo "DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }}" >> $GITHUB_ENV
           echo "GUILD_ID=${{ secrets.GUILD_ID }}" >> $GITHUB_ENV
 
-      # Step 5: Run event fetch script
+      # Step 5: Configure Git for commits
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      # Step 6: Run event fetch script
       - name: Run event fetch script
         run: node ./fetchDiscordEvents.js
