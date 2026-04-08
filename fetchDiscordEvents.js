@@ -65,14 +65,14 @@ async function main() {
   // -------------------------
   if (writeIfChanged(MAIN_FILE, jsonData)) {
     console.log("Main file changed. Committing...");
-    try {
-      execSync(`git add ${MAIN_FILE}`);
-      execSync('git commit -m "Update Discord events on main"');
-      execSync('git push origin main');
-      console.log("Main branch updated.");
-    } catch {
-      console.log("No changes to push on main.");
-    }
+
+    execSync('git config user.name "github-actions[bot]"');
+    execSync('git config user.email "github-actions[bot]@users.noreply.github.com"');
+
+    execSync(`git add ${MAIN_FILE}`);
+    execSync('git commit -m "Update Discord events on main" || echo "No changes to commit"');
+    execSync('git push origin main || echo "Nothing to push"');
+    console.log("Main branch updated.");
   } else {
     console.log("No changes detected on main branch.");
   }
@@ -86,9 +86,13 @@ async function main() {
 
     if (writeIfChanged(GH_PAGES_FILE, jsonData)) {
       console.log("GH Pages file changed. Committing...");
+
+      execSync('git config user.name "github-actions[bot]"');
+      execSync('git config user.email "github-actions[bot]@users.noreply.github.com"');
+
       execSync(`git add ${GH_PAGES_FILE}`);
-      execSync('git commit -m "Update Discord events on gh-pages"');
-      execSync(`git push origin ${GH_PAGES_BRANCH}`);
+      execSync('git commit -m "Update Discord events on gh-pages" || echo "No changes to commit"');
+      execSync(`git push origin ${GH_PAGES_BRANCH} || echo "Nothing to push"`);
       console.log("GH Pages branch updated.");
     } else {
       console.log("No changes detected on gh-pages branch.");
