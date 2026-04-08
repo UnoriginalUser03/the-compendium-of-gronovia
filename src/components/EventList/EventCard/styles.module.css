@@ -10,10 +10,6 @@
   border: 2px solid var(--ifm-color-success);
 }
 
-.nextEvent {
-  border: 2px solid var(--ifm-color-success);
-}
-
 .liveEvent {
   border: 2px solid var(--ifm-color-warning);
 }
