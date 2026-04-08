@@ -2,7 +2,7 @@ import React from "react";
 import EventList from "../../components/EventList";
 import type { Event } from "../../helpers/eventUtils";
 import { splitEvents } from "../../helpers/eventUtils";
-import eventsData from "../../../data/discord-events.json";
+import eventsData from "../../../static/data/discord-events.json";
 import eventRecapsRaw from "../../data/event-recaps.json";
 import Layout from "@theme/Layout";
 

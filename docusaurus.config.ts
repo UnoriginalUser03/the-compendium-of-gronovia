@@ -8,7 +8,7 @@ const config: Config = {
   title: 'The Compendium of Gronovia',
   tagline: 'A living compendium of knowledge about the Homebrew Dungeon & Dragons world of Gronovia',
   favicon: 'img/favicon.ico',
-  staticDirectories: ['static', 'data'],
+  staticDirectories: ['static'],
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
   future: {
