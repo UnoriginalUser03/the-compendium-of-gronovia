@@ -1,12 +1,15 @@
+import fetch from "node-fetch";
 import fs from "fs";
 import { execSync } from "child_process";
+import "dotenv/config";
 
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 const GUILD_ID = process.env.GUILD_ID;
 const OUTPUT_FILE = "./src/data/discord-events.json";
+const TARGET_BRANCH = "gh-pages"; // branch to push updated data to
 
 if (!DISCORD_TOKEN || !GUILD_ID) {
-  console.error("Missing DISCORD_TOKEN or GUILD_ID in environment variables!");
+  console.error("Missing DISCORD_TOKEN or GUILD_ID in .env");
   process.exit(1);
 }
 
@@ -35,43 +38,48 @@ async function fetchDiscordEvents() {
   }));
 }
 
-function loadExistingEvents() {
-  if (!fs.existsSync(OUTPUT_FILE)) return [];
-  try {
-    return JSON.parse(fs.readFileSync(OUTPUT_FILE, "utf-8"));
-  } catch {
-    return [];
-  }
-}
-
-function mergeEvents(oldEvents, newEvents) {
-  const map = new Map();
-
-  oldEvents.forEach((e) => map.set(e.id, e));
-  newEvents.forEach((e) => map.set(e.id, e));
-
-  return Array.from(map.values());
-}
-
 async function main() {
   const newEvents = await fetchDiscordEvents();
-  const existingEvents = loadExistingEvents();
-  const merged = mergeEvents(existingEvents, newEvents);
+  let oldEvents = [];
 
-  fs.writeFileSync(OUTPUT_FILE, JSON.stringify(merged, null, 2));
+  if (fs.existsSync(OUTPUT_FILE)) {
+    try {
+      oldEvents = JSON.parse(fs.readFileSync(OUTPUT_FILE, "utf-8"));
+    } catch {}
+  }
+
+  // Merge old + new events by ID
+  const map = new Map();
+  for (const e of oldEvents) map.set(e.id, e);
+  for (const e of newEvents) map.set(e.id, e);
+  const merged = Array.from(map.values());
+
+  const newJSON = JSON.stringify(merged, null, 2);
+
+  // Only write + commit if different
+  const oldJSON = fs.existsSync(OUTPUT_FILE)
+    ? fs.readFileSync(OUTPUT_FILE, "utf-8")
+    : "";
+  if (newJSON === oldJSON) {
+    console.log("No changes, skipping commit.");
+    return;
+  }
+
+  fs.writeFileSync(OUTPUT_FILE, newJSON);
   console.log(`Saved ${merged.length} total events`);
 
   try {
-    // Configure Git
-    execSync('git config user.name "github-actions[bot]"');
-    execSync('git config user.email "github-actions[bot]@users.noreply.github.com"');
-
+    // Checkout the target branch temporarily
+    execSync(`git fetch origin ${TARGET_BRANCH}`);
+    execSync(`git checkout ${TARGET_BRANCH}`);
+    fs.writeFileSync(OUTPUT_FILE, newJSON); // overwrite in gh-pages branch
     execSync(`git add ${OUTPUT_FILE}`);
-    execSync('git commit -m "Update Discord events"');
-    execSync("git push");
-    console.log("Changes committed and pushed to GitHub.");
-  } catch {
-    console.log("No changes to commit.");
+    execSync(`git commit -m "Update Discord events"`);
+    execSync(`git push origin ${TARGET_BRANCH}`);
+    console.log("Updated gh-pages branch with new events.");
+    execSync(`git checkout -`); // go back to main
+  } catch (err) {
+    console.error("Failed to push to gh-pages:", err);
   }
 }
 
