@@ -1,4 +1,4 @@
-/**
+/*!
  * Any CSS included here will be global. The classic template
  * bundles Infima by default. Infima is a CSS framework designed to
  * work well for content-centric websites.
@@ -6,6 +6,10 @@
 
 /* You can override the default Infima variables here. */
 @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&display=swap');
+@import 'leaflet/dist/leaflet.css';
+@import "yet-another-react-lightbox/styles.css";
+@import "yet-another-react-lightbox/plugins/captions.css";
+@import 'leaflet.fullscreen/dist/Control.FullScreen.css';
 
 :root {
   --ifm-color-primary: #2e8555;
@@ -22,11 +26,16 @@
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--ifm-font-family-headings);
 }
 
-/* For readability concerns, you should choose a lighter palette in dark mode. */
+/* Dark theme overrides */
 [data-theme='dark'] {
   --ifm-color-primary: #25c2a0;
   --ifm-color-primary-dark: #21af90;
@@ -39,5 +48,116 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .navbar__logo svg {
-  color: var(--ifm-font-color-base);
+  color: var(--ifm-font-color-base) !important;
 }
+
+/* Leaflet popups themed for Docusaurus */
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  font-family: var(--ifm-font-family-base);
+  font-size: var(--ifm-font-size-base);
+  color: var(--ifm-font-color-base);
+  background-color: var(--ifm-background-color);
+  border: 1px solid var(--ifm-color-primary);
+}
+
+.leaflet-popup-content a {
+  color: var(--ifm-color-primary);
+  text-decoration: underline;
+}
+
+.leaflet-popup-tip {
+  background-color: var(--ifm-background-color);
+}
+
+/* Leaflet marker styling */
+.leaflet-marker-icon svg,
+.leaflet-marker-icon div {
+  font-size: 24px;
+  line-height: 1;
+  transition: transform 0.2s;
+  cursor: pointer;
+}
+
+.leaflet-marker-icon svg:hover,
+.leaflet-marker-icon div:hover {
+  transform: scale(1.3);
+  color: var(--ifm-color-primary);
+}
+
+.leaflet-marker-icon svg.disabled,
+.leaflet-marker-icon div.disabled {
+  opacity: 0.7;
+}
+
+
+/* Leaflet control bar styling */
+.leaflet-bar a {
+  background-color: var(--ifm-background-color);
+  color: var(--ifm-font-color-base);
+  border-bottom: 1px solid var(--ifm-font-color-base);
+}
+
+[data-theme='light'] .leaflet-bar a,
+[data-theme='light'] .leaflet-popup-content-wrapper,
+[data-theme='light'] .leaflet-popup-tip {
+  background-color: #ffffff;
+  color: var(--ifm-font-color-base);
+  border-bottom: 1px solid var(--ifm-font-color-base);
+}
+
+[data-theme='light'] .leaflet-bar a:hover,
+[data-theme='light'] .leaflet-bar a:focus,
+[data-theme='light'] .leaflet-bar a:active,
+[data-theme='light'] .leaflet-bar a.leaflet-disabled {
+  background-color: #ffffff;
+}
+
+.leaflet-bar a:hover,
+.leaflet-bar a:focus,
+.leaflet-bar a:active {
+  color: var(--ifm-link-hover-color);
+  background-color: var(--ifm-background-color);
+  cursor: pointer;
+}
+
+.leaflet-bar a.leaflet-disabled {
+  background-color: var(--ifm-background-color);
+  color: var(--ifm-hover-overlay);
+}
+
+.leaflet-container {
+  z-index: 0;
+  /* lower than the navbar */
+}
+
+/* Sidebar items */
+.sidebar-item-with-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.sidebar-item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* =========================
+   Fullscreen Lucide Icon
+   ========================= */
+.leaflet-control-zoom-fullscreen span,
+.leaflet-control-zoom-reset span {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+}
+
+.leaflet-control-zoom-fullscreen svg,
+.leaflet-control-zoom-reset svg {
+  width: 20px;
+  height: 20px;
+}
+

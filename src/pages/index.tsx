@@ -11,7 +11,8 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 import styles from './index.module.css';
 // @ts-ignore
-import CLOUDS2 from 'vanta/dist/vanta.clouds2.min';
+import CLOUDS from 'vanta/dist/vanta.clouds.min';
+import HomepageEvents from '../components/HomePageEvents';
 
 function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();
@@ -20,10 +21,14 @@ function HomepageHeader() {
   const myRef = useRef(null);
   useEffect(() => {
     if (!vantaEffect) {
-      setVantaEffect(CLOUDS2({
+      setVantaEffect(CLOUDS({
         el: myRef.current,
-        texturePath: texture,
         scale: 1.0,
+        mouseControls: false,
+        gyroControls: false,
+        touchControls: false,
+        skyColor: 0x5ca6ca,
+        cloudColor: 0xafafaf,
       }))
     }
     return () => {
@@ -77,11 +82,12 @@ function HomepageHeader() {
 }
 
 export default function Home(): ReactNode {
-  const { siteConfig } = useDocusaurusContext();
+
   return (
     <Layout>
       <HomepageHeader />
       <main>
+        <HomepageEvents />
         <HomepageFeatures />
       </main>
     </Layout>

@@ -51,7 +51,7 @@
   width: 140px;
   height: auto;
   margin-bottom: 1rem;
-  color: var(--ifm-hero-text-color);
+  color: var(--ifm-font-color-base-inverse);
   flex-shrink: 0;        /* prevents overlap */
   display: inline-block; /* makes wrapper behave like <img> */
 }

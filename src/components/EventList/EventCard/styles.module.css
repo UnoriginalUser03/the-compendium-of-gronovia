@@ -1,0 +1,80 @@
+.card {
+  padding: 16px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  background: var(--ifm-background-surface-color);
+  transition: all 0.2s ease;
+}
+
+.nextEvent {
+  border: 2px solid var(--ifm-color-success);
+}
+
+.nextEvent {
+  border: 2px solid var(--ifm-color-success);
+}
+
+.liveEvent {
+  border: 2px solid var(--ifm-color-warning);
+}
+
+.pastEvent {
+  border: 1px solid var(--ifm-color-secondary);
+  opacity: 0.7;
+}
+
+.countdown {
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.upcoming {
+  color: var(--ifm-color-success);
+}
+
+.live {
+  color: var(--ifm-color-warning);
+}
+
+.canceled {
+  color: var(--ifm-color-danger);
+  font-weight: 500;
+}
+
+.links {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* Compact mode tweaks */
+.compact {
+  padding: 12px;
+}
+
+.compact h2 {
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.compact .links {
+  display: none; /* hide links in compact mode */
+}
+
+.compact p {
+  display: none; /* hide description in compact mode */
+}
+
+/* Mobile adjustments */
+@media (max-width: 600px) {
+  .card,
+  .compact {
+    padding: 12px;
+  }
+
+  .links {
+    gap: 8px;
+    font-size: 0.85rem;
+  }
+}

@@ -1,0 +1,29 @@
+---
+title: Map of Tamera
+sidebar_position: 2
+sidebar_custom_props:
+  icon: Map
+---
+import { Building2 } from "lucide-react";
+
+<Map
+  image="/img/maps/map-of-tamera.jpg"
+  bounds={[[0, 0], [3472, 4489]]}
+  scaleRatio={0.08}
+  markers={[
+    {
+      id: "venmeer",
+      title: "City of Venmeer",
+      link: "/compendium/locations/eldovar/asthera/tamera/vemeer/",
+      position: [1974, 807],
+      type: "city",
+    },
+    {
+      id: "heathden",
+      title: "Town of Heathden",
+      position: [2632, 1459],
+      link: "/compendium/locations/eldovar/asthera/tamera/heathden/",
+      type: "town"
+    },
+  ]}
+/>

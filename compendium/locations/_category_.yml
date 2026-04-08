@@ -1,0 +1,7 @@
+label: Locations
+link:
+  type: generated-index
+  title: Locations
+  description: All known locations in the world.
+customProps: 
+  icon: MapPin

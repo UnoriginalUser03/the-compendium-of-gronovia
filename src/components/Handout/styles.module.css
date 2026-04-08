@@ -1,0 +1,106 @@
+/* --- Inline Mode --- */
+.inline {
+  cursor: pointer;
+  color: var(--ifm-color-primary);
+  text-decoration: underline;
+}
+
+/* --- Card Base --- */
+.card {
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  padding: 0.75rem;
+  border-radius: var(--ifm-global-radius);
+  background: var(--ifm-background-surface-color);
+  box-shadow: var(--ifm-global-shadow-lw);
+  border: 1px solid var(--ifm-color-emphasis-200);
+}
+
+/* --- Card Sizes --- */
+.md {
+  width: 220px;
+}
+
+.sm {
+  width: 160px;
+}
+
+.lg {
+  width: 300px;
+}
+
+/* --- Card Hover --- */
+.card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: var(--ifm-global-shadow-md);
+  border-color: var(--ifm-color-emphasis-300);
+}
+
+/* --- Thumbnail Preview --- */
+.thumbnail {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--ifm-global-radius);
+  margin-bottom: 0.5rem;
+
+  background: var(--ifm-background-color);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  box-shadow: inset 0 0 6px var(--ifm-color-emphasis-300);
+
+  transition: transform 0.2s ease;
+}
+
+.card:hover .thumbnail {
+  transform: scale(1.03);
+}
+
+/* --- Title --- */
+.cardTitle {
+  font-weight: 600;
+  margin-top: 0.5rem;
+  color: var(--ifm-font-color-base);
+}
+
+/* --- Mobile Card Improvements --- */
+@media (max-width: 700px) {
+  /* Make cards fluid instead of fixed width */
+  .card {
+    width: 100%;
+    max-width: 320px; /* prevents giant cards on tablets */
+    margin: 0 auto;   /* center the card */
+    padding: 0.6rem;
+  }
+
+  /* Scale sizes down slightly */
+  .sm,
+  .md,
+  .lg {
+    width: 100%; /* override fixed widths */
+  }
+
+  /* Thumbnail: keep aspect ratio but reduce visual footprint */
+  .thumbnail {
+    aspect-ratio: 4 / 3;
+    border-radius: var(--ifm-global-radius);
+  }
+
+  /* Title spacing tweaks */
+  .cardTitle {
+    font-size: 0.95rem;
+    margin-top: 0.4rem;
+  }
+}
+
+/* --- Extra Small Screens (phones < 400px) --- */
+@media (max-width: 400px) {
+  .card {
+    max-width: 280px;
+    padding: 0.5rem;
+  }
+
+  .cardTitle {
+    font-size: 0.9rem;
+  }
+}
