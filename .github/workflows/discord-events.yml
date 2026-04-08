@@ -9,9 +9,8 @@ on:
     - cron: "0,30 * * * *"
 
 jobs:
-  update-main:
+  update-events:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
         with:
@@ -36,20 +35,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
           git add static/data/discord-events.json
           git diff --cached --quiet || git commit -m "Update Discord events (main)"
           git push
-
-  update-gh-pages:
-    needs: update-main
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Prepare gh-pages worktree
         run: |
@@ -65,7 +53,6 @@ jobs:
           cd gh-pages-worktree
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
           git add data/discord-events.json
           git diff --cached --quiet || git commit -m "Update Discord events (gh-pages)"
           git push
