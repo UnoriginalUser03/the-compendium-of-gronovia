@@ -11,88 +11,48 @@ on:
 jobs:
   update-events:
     runs-on: ubuntu-latest
-
     steps:
-      # 1. Checkout ONLY the main branch, shallow clone
-      - name: Checkout main
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
         with:
-          fetch-depth: 1
-          ref: main
+          fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      # 2. Cache npm dependencies
-      - name: Cache npm
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      # 3. Setup Node
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: "lts/*"
-          cache: "npm"
 
-      # 4. Install deps (fast due to cache)
-      - name: Install dependencies
-        run: npm install --prefer-offline
+      - run: npm ci
 
-      # 5. Set secrets
       - name: Set Discord secrets
         run: |
           echo "DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }}" >> $GITHUB_ENV
           echo "GUILD_ID=${{ secrets.GUILD_ID }}" >> $GITHUB_ENV
 
-      # 6. Run fetch script
       - name: Fetch Discord events
         run: node ./fetchDiscordEvents.js
 
-      # 7. Check if main JSON changed
-      - name: Check for changes
-        id: changed
-        run: |
-          if git diff --quiet static/data/discord-events.json; then
-            echo "changed=false" >> $GITHUB_OUTPUT
-          else
-            echo "changed=true" >> $GITHUB_OUTPUT
-          fi
-
-      # 8. Commit to main only if changed
-      - name: Commit to main
-        if: steps.changed.outputs.changed == 'true'
+      - name: Commit to main if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add static/data/discord-events.json
-          git commit -m "Update Discord events (main)"
+          git diff --cached --quiet || git commit -m "Update Discord events (main)"
           git push
 
-      # 9. Fetch gh-pages branch shallow
-      - name: Fetch gh-pages
-        if: steps.changed.outputs.changed == 'true'
-        run: git fetch origin gh-pages:gh-pages --depth=1
-
-      # 10. Create worktree only if needed
       - name: Prepare gh-pages worktree
-        if: steps.changed.outputs.changed == 'true'
-        run: git worktree add gh-pages-worktree gh-pages
+        run: |
+          git fetch origin gh-pages
+          git worktree add gh-pages-worktree gh-pages
 
-      # 11. Copy updated JSON
-      - name: Copy JSON to gh-pages
-        if: steps.changed.outputs.changed == 'true'
-        run: cp data/discord-events.json gh-pages-worktree/data/discord-events.json
+      - name: Copy updated JSON into gh-pages
+        run: |
+          cp data/discord-events.json gh-pages-worktree/data/discord-events.json
 
-      # 12. Commit to gh-pages
-      - name: Commit to gh-pages
-        if: steps.changed.outputs.changed == 'true'
+      - name: Commit to gh-pages if changed
         run: |
           cd gh-pages-worktree
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/discord-events.json
-          git commit -m "Update Discord events (gh-pages)"
+          git diff --cached --quiet || git commit -m "Update Discord events (gh-pages)"
           git push
