@@ -1,28 +1,29 @@
 name: Update Discord Events
 
-# Run on schedule + manual trigger
 on:
-  workflow_dispatch: # allows manual trigger
+  workflow_dispatch:        # manual trigger
   push:
     branches:
       - main
   schedule:
-   - cron: '0,30 * * * *'
+    - cron: '0,30 * * * *' # every 30 minutes
 
 jobs:
   update-events:
     runs-on: ubuntu-latest
-
     steps:
       # Step 1: Checkout repo
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0        # fetch all branches and history
+          persist-credentials: true # allows push using GITHUB_TOKEN
 
-      # Step 2: Setup Node.js
+      # Step 2: Setup Node.js (latest)
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: 'lts/*' # latest LTS version
 
       # Step 3: Install dependencies
       - name: Install dependencies
@@ -34,6 +35,6 @@ jobs:
           echo "DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }}" >> $GITHUB_ENV
           echo "GUILD_ID=${{ secrets.GUILD_ID }}" >> $GITHUB_ENV
 
-      # Step 5: Run script
+      # Step 5: Run event fetch script
       - name: Run event fetch script
         run: node ./fetchDiscordEvents.js
