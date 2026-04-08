@@ -1,5 +1,8 @@
 name: Update Discord Events
 
+permissions:
+  contents: write
+
 on:
   workflow_dispatch:        # manual trigger
   push:
@@ -18,6 +21,7 @@ jobs:
         with:
           fetch-depth: 0        # fetch all branches and history
           persist-credentials: true # allows push using GITHUB_TOKEN
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       # Step 2: Setup Node.js (latest)
       - name: Setup Node.js
