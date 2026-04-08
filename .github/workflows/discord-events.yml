@@ -39,12 +39,6 @@ jobs:
           echo "DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }}" >> $GITHUB_ENV
           echo "GUILD_ID=${{ secrets.GUILD_ID }}" >> $GITHUB_ENV
 
-      # Step 5: Configure Git for commits
-      - name: Configure Git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
       # Step 6: Run event fetch script
       - name: Run event fetch script
         run: node ./fetchDiscordEvents.js
