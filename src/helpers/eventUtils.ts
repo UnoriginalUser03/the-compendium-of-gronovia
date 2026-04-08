@@ -73,35 +73,65 @@ export function getTimeParts(diff: number) {
 }
 
 // Calendar helpers
-export function formatICalDate(date: string) {
-  const d = new Date(date);
+export function formatICalDate(date: string | Date) {
+  const d = typeof date === "string" ? new Date(date) : date;
   return d.toISOString().replace(/-|:|\.\d+/g, '');
 }
 
-export function getGoogleCalendarUrl(event: { name: string; description?: string | null; startTime: string; endTime?: string | null }) {
-  const start = formatICalDate(event.startTime);
-  const end = formatICalDate(event.endTime || event.startTime);
-  const url = new URL('https://calendar.google.com/calendar/render');
-  url.searchParams.set('action', 'TEMPLATE');
-  url.searchParams.set('text', event.name);
-  url.searchParams.set('dates', `${start}/${end}`);
-  url.searchParams.set('details', event.description || '');
+export function getGoogleCalendarUrl(event: {
+  name: string;
+  description?: string | null;
+  startTime: string;
+  endTime?: string | null;
+}) {
+  const startDate = new Date(event.startTime);
+
+  // Default end = start + 1 hour
+  const endDate = event.endTime
+    ? new Date(event.endTime)
+    : new Date(startDate.getTime() + 60 * 60 * 1000);
+
+  const start = formatICalDate(startDate);
+  const end = formatICalDate(endDate);
+
+  const url = new URL("https://calendar.google.com/calendar/render");
+  url.searchParams.set("action", "TEMPLATE");
+  url.searchParams.set("text", event.name);
+  url.searchParams.set("dates", `${start}/${end}`);
+  url.searchParams.set("details", event.description || "");
+
   return url.toString();
 }
 
-export function generateICS(event: { name: string; description?: string | null; startTime: string; endTime?: string | null }) {
-  const start = formatICalDate(event.startTime);
-  const end = formatICalDate(event.endTime || event.startTime);
+export function generateICS(event: {
+  name: string;
+  description?: string | null;
+  startTime: string;
+  endTime?: string | null;
+}) {
+  const startDate = new Date(event.startTime);
+
+  // Default end = start + 1 hour
+  const endDate = event.endTime
+    ? new Date(event.endTime)
+    : new Date(startDate.getTime() + 60 * 60 * 1000);
+
+  const start = formatICalDate(startDate);
+  const end = formatICalDate(endDate);
+
   const ics = `
 BEGIN:VCALENDAR
 VERSION:2.0
 BEGIN:VEVENT
 SUMMARY:${event.name}
-DESCRIPTION:${event.description || ''}
+DESCRIPTION:${event.description || ""}
 DTSTART:${start}
 DTEND:${end}
 END:VEVENT
 END:VCALENDAR
   `.trim();
-  return URL.createObjectURL(new Blob([ics], { type: 'text/calendar;charset=utf-8' }));
+
+  return URL.createObjectURL(
+    new Blob([ics], { type: "text/calendar;charset=utf-8" })
+  );
 }
