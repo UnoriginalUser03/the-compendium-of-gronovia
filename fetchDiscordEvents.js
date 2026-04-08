@@ -5,7 +5,7 @@ import "dotenv/config";
 
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 const GUILD_ID = process.env.GUILD_ID;
-const OUTPUT_FILE = "./src/data/discord-events.json";
+const OUTPUT_FILE = "./data/discord-events.json";
 const TARGET_BRANCH = "gh-pages";
 
 if (!DISCORD_TOKEN || !GUILD_ID) {

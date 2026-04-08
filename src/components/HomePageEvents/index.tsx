@@ -1,6 +1,6 @@
 import React from "react";
 import { Event, splitEvents } from "../../helpers/eventUtils";
-import eventsData from "../../data/discord-events.json";
+import eventsData from "../../../data/discord-events.json";
 import EventList from "../EventList";
 import Link from "@docusaurus/Link";
 
