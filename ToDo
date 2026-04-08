@@ -2,3 +2,5 @@
 + Stop adding page to URL in handouts when there is not more than 1 page.
 + Upcoming Events page with discord api and github actions 
 + Disable fullscreen map on mobile
++ Add search 
++ Add graph

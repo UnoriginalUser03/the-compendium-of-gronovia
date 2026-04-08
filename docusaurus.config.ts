@@ -99,8 +99,9 @@ const config: Config = {
           position: 'left',
           label: 'Locations',
         },
-        { to: '/sessions', label: 'Sessions', position: 'left' },
-        { to: '/handouts', label: 'Handouts', position: 'left' },
+        { to: '/sessions', label: 'Sessions', position: 'right' },
+        { to: '/handouts', label: 'Handouts', position: 'right' },
+        { to: '/events', label: 'Events', position: 'right' },
         // {
         //   href: 'https://github.com/facebook/docusaurus',
         //   label: 'GitHub',
@@ -127,6 +128,14 @@ const config: Config = {
               label: 'Sessions',
               to: '/sessions',
             },
+            {
+              label: 'Handouts',
+              to: '/handouts',
+            },
+            {
+              label: 'Events',
+              to: '/events',
+            }
           ],
         },
         {
