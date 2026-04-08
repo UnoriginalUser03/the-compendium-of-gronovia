@@ -1,20 +1,20 @@
 import fetch from "node-fetch";
 import fs from "fs";
 import { execSync } from "child_process";
-import "dotenv/config";
 
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 const GUILD_ID = process.env.GUILD_ID;
+
+if (!DISCORD_TOKEN || !GUILD_ID) {
+  console.error("Missing DISCORD_TOKEN or GUILD_ID");
+  process.exit(1);
+}
 
 const MAIN_FILE = "./static/data/discord-events.json";
 const GH_PAGES_FILE = "./data/discord-events.json";
 const GH_PAGES_BRANCH = "gh-pages";
 
-if (!DISCORD_TOKEN || !GUILD_ID) {
-  console.error("Missing DISCORD_TOKEN or GUILD_ID in .env");
-  process.exit(1);
-}
-
+// fetch events from Discord
 async function fetchDiscordEvents() {
   const res = await fetch(
     `https://discord.com/api/v10/guilds/${GUILD_ID}/scheduled-events`,
@@ -22,8 +22,7 @@ async function fetchDiscordEvents() {
   );
 
   if (!res.ok) {
-    console.error("Failed to fetch events:", res.statusText);
-    process.exit(1);
+    throw new Error(`Failed to fetch events: ${res.status} ${res.statusText}`);
   }
 
   const events = await res.json();
@@ -37,25 +36,35 @@ async function fetchDiscordEvents() {
   }));
 }
 
-function loadJSON(filePath) {
-  if (!fs.existsSync(filePath)) return [];
+function loadJSON(path) {
+  if (!fs.existsSync(path)) return [];
   try {
-    return JSON.parse(fs.readFileSync(filePath, "utf-8"));
+    return JSON.parse(fs.readFileSync(path, "utf-8"));
   } catch {
     return [];
   }
 }
 
+// write file only if changed
+function writeIfChanged(path, data) {
+  const oldData = fs.existsSync(path) ? fs.readFileSync(path, "utf-8") : "";
+  if (oldData !== data) {
+    fs.mkdirSync(path.split("/").slice(0, -1).join("/"), { recursive: true });
+    fs.writeFileSync(path, data);
+    return true;
+  }
+  return false;
+}
+
 async function main() {
-  const newEvents = await fetchDiscordEvents();
-  const newJSON = JSON.stringify(newEvents, null, 2);
+  const events = await fetchDiscordEvents();
+  const jsonData = JSON.stringify(events, null, 2);
 
   // -------------------------
   // 1️⃣ Update main branch
   // -------------------------
-  const oldMainJSON = fs.existsSync(MAIN_FILE) ? fs.readFileSync(MAIN_FILE, "utf-8") : "";
-  if (newJSON !== oldMainJSON) {
-    fs.writeFileSync(MAIN_FILE, newJSON);
+  if (writeIfChanged(MAIN_FILE, jsonData)) {
+    console.log("Main file changed. Committing...");
     try {
       execSync(`git add ${MAIN_FILE}`);
       execSync('git commit -m "Update Discord events on main"');
@@ -65,7 +74,7 @@ async function main() {
       console.log("No changes to push on main.");
     }
   } else {
-    console.log("No changes detected for main branch.");
+    console.log("No changes detected on main branch.");
   }
 
   // -------------------------
@@ -73,18 +82,16 @@ async function main() {
   // -------------------------
   try {
     execSync(`git fetch origin ${GH_PAGES_BRANCH}`);
-    execSync(`git checkout ${GH_PAGES_BRANCH}`);
-    fs.mkdirSync("./data", { recursive: true }); // ensure folder exists
-    fs.writeFileSync(GH_PAGES_FILE, newJSON);
+    execSync(`git checkout -B ${GH_PAGES_BRANCH} origin/${GH_PAGES_BRANCH}`);
 
-    const oldGHPagesJSON = loadJSON(GH_PAGES_FILE);
-    if (JSON.stringify(oldGHPagesJSON, null, 2) !== newJSON) {
+    if (writeIfChanged(GH_PAGES_FILE, jsonData)) {
+      console.log("GH Pages file changed. Committing...");
       execSync(`git add ${GH_PAGES_FILE}`);
       execSync('git commit -m "Update Discord events on gh-pages"');
       execSync(`git push origin ${GH_PAGES_BRANCH}`);
-      console.log("gh-pages branch updated.");
+      console.log("GH Pages branch updated.");
     } else {
-      console.log("No changes detected for gh-pages branch.");
+      console.log("No changes detected on gh-pages branch.");
     }
 
     execSync('git checkout main'); // switch back
@@ -94,4 +101,7 @@ async function main() {
   }
 }
 
-main();
+main().catch(err => {
+  console.error(err);
+  process.exit(1);
+});
