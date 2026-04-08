@@ -32,7 +32,7 @@ jobs:
 
       # Step 5: Run script
       - name: Run event fetch script
-        run: node ./scripts/fetchDiscordEvents.js
+        run: node ./fetchDiscordEvents.js
 
       # Step 6: Commit & push changes
       - name: Commit updated events
