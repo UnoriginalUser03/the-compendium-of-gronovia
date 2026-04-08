@@ -3,8 +3,13 @@ name: Update Discord Events
 # Run on schedule + manual trigger
 on:
   workflow_dispatch: # allows manual trigger
+  push:
+    branches:
+      - main
+      - gh-pages
   schedule:
    - cron: '0,30 * * * *'
+
 jobs:
   update-events:
     runs-on: ubuntu-latest
@@ -33,12 +38,3 @@ jobs:
       # Step 5: Run script
       - name: Run event fetch script
         run: node ./fetchDiscordEvents.js
-
-      # Step 6: Commit & push changes
-      - name: Commit updated events
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add ./src/data/discord-events.json
-          git diff --quiet || git commit -m "Update Discord events"
-          git push
