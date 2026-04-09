@@ -2,12 +2,13 @@ import React, { useRef } from "react";
 import L from "leaflet";
 import { MapContainer, ImageOverlay } from "react-leaflet";
 import LeafletMarker from "../LeafletMarker";
-import LeafletMeasure from "../LeafletMeasure";
 import LeafletDevCoords from "../LeafletDevCoords";
 import LeafletFullscreen from "../LeafletFullscreen";
 import useBaseUrl from "@docusaurus/useBaseUrl";
-import LeafletDistance from "../LeafletDistance";
 import LeafletRecenter from "../LeafletRecenter";
+import LeafletMeasureControls from "../LeafletMeasureControls";
+import LeafletDistancePanel from "../LeafletDistancePanel";
+import LeafletMeasure from "../LeafletMeasure";
 
 type MarkerType = {
   id: string;
@@ -69,6 +70,22 @@ export default function LeafletMap({
         <LeafletMarker key={`${marker.id}-${measureEnabled}`} marker={marker} interactable={!measureEnabled} />
       ))}
 
+      <LeafletMeasureControls
+        measureEnabled={measureEnabled}
+        setMeasureEnabled={setMeasureEnabled!}
+        onClear={() => measureRef.current?.clear()}
+      />
+
+      <LeafletDistancePanel
+        displayDistance={displayDistance}
+        travelInfo={travelInfo}
+      />
+
+      <LeafletDevCoords
+        measureEnabled={measureEnabled}
+        devMode={process.env.NODE_ENV === "development"}
+      />
+
       {measureEnabled && (
         <LeafletMeasure
           scaleRatio={scaleRatio}
@@ -79,24 +96,9 @@ export default function LeafletMap({
         />
       )}
 
-      <LeafletDevCoords
-        measureEnabled={measureEnabled}
-        devMode={process.env.NODE_ENV === "development"}
-      />
-
       <LeafletFullscreen />
       <LeafletRecenter center={center} zoom={-3} />
 
-      {/* Use dedicated distance component */}
-      {setMeasureEnabled && (
-        <LeafletDistance
-          measureEnabled={measureEnabled}
-          setMeasureEnabled={setMeasureEnabled}
-          displayDistance={displayDistance}
-          travelInfo={travelInfo}
-          onClearMeasurements={() => measureRef.current?.clear()}
-        />
-      )}
     </MapContainer>
   );
 }

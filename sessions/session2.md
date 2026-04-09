@@ -9,7 +9,7 @@ tags:
 ## Session Recap
 Left in the cold dank warehouse deep in Ruarden Hold, Merla confronted with Duggle heard from him a cryptic rhyme - some kind of warning. Moments later, two dwarves entered the warehouse, forcing Merla and Cordelia into hiding.
 
-<!--truncate-->
+{/* truncate */}
 
 As they moved through the halls, they overheard Cecilia ordering a full search of the hold after she discovered what had happened to Trudie, her daughter, and discovering that their rooms were empty. Managing to avoid detection, the players made it to the top of the hold, where Cordelia tripped, alerting a dwarf in the process. Duggle appeared again, this time distracting dwarves, allowing the party to narrowly escape. 
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import BrowserOnly from "@docusaurus/BrowserOnly";
-import { travelTimeEstimate } from "../../helpers/TravelCalculator";
+import { travelTimeEstimate } from "../../helpers/travelCalculator"
 
 export default function Map(props: any) {
     const [measureEnabled, setMeasureEnabled] = useState(false);

@@ -20,7 +20,7 @@ export default function Events() {
     if (!events) {
         return (
             <Layout>
-                <p style={{ padding: "2rem" }}>Loading events…</p>
+                <p className="text--center">Loading events…</p>
             </Layout>
         );
     }

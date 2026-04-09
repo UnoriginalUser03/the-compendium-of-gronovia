@@ -126,9 +126,24 @@ h6 {
   color: var(--ifm-hover-overlay);
 }
 
+/* Normal mode: keep map below navbar */
 .leaflet-container {
   z-index: 0;
-  /* lower than the navbar */
+  font-family: var(--ifm-font-family-base);
+}
+
+/* Fullscreen mode: force ABOVE everything */
+.leaflet-container.leaflet-fullscreen-on {
+  z-index: 9999 !important;
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+}
+
+html.leaflet-fullscreen-on,
+body.leaflet-fullscreen-on {
+  overflow: hidden;
 }
 
 /* Sidebar items */
@@ -148,16 +163,27 @@ h6 {
 /* =========================
    Fullscreen Lucide Icon
    ========================= */
-.leaflet-control-zoom-fullscreen span,
-.leaflet-control-zoom-reset span {
+.leaflet-bar span {
   display: inline-flex;
   align-items: center;
   vertical-align: middle;
 }
 
-.leaflet-control-zoom-fullscreen svg,
-.leaflet-control-zoom-reset svg {
+.leaflet-bar svg {
   width: 20px;
   height: 20px;
 }
 
+.leaflet-distance-panel {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  padding: 10px 14px;
+  background: var(--ifm-background-surface-color) !important;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  min-width: 200px;
+  pointer-events: auto;
+  font-family: var(--ifm-font-family-base);
+  font-size: var(--ifm-font-size-base);
+}

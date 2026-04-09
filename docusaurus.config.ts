@@ -78,6 +78,18 @@ const config: Config = {
     ],
 
   ],
+  plugins: [
+    [
+      '@docusaurus/plugin-ideal-image',
+      {
+        quality: 70,
+        max: 1200,
+        min: 200,
+        steps: 4,
+        disableInDev: false,
+      },
+    ],
+  ],
 
   themeConfig: {
     // Replace with your project's social card
