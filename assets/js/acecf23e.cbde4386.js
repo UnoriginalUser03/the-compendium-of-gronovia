@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkthe_compendium_of_gronovia=self.webpackChunkthe_compendium_of_gronovia||[]).push([["3220"],{1912(o){o.exports=JSON.parse('{"blogBasePath":"/the-compendium-of-gronovia/sessions","blogTitle":"Blog","authorsListPath":"/the-compendium-of-gronovia/sessions/authors"}')}}]);

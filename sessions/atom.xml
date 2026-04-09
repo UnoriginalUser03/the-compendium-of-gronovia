@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://unoriginaluser03.github.io/the-compendium-of-gronovia/sessions</id>
     <title>The Compendium of Gronovia Blog</title>
-    <updated>2026-04-04T07:38:19.000Z</updated>
+    <updated>2026-04-08T12:22:13.000Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://unoriginaluser03.github.io/the-compendium-of-gronovia/sessions"/>
     <subtitle>The Compendium of Gronovia Blog</subtitle>
@@ -11,7 +11,7 @@
         <title type="html"><![CDATA[Session 1: Ruarden Hold]]></title>
         <id>https://unoriginaluser03.github.io/the-compendium-of-gronovia/sessions/session1</id>
         <link href="https://unoriginaluser03.github.io/the-compendium-of-gronovia/sessions/session1"/>
-        <updated>2026-04-04T07:38:19.000Z</updated>
+        <updated>2026-04-08T12:22:13.000Z</updated>
         <summary type="html"><![CDATA[Players: Merla, Cordelia]]></summary>
         <content type="html"><![CDATA[<p><strong>Players</strong>: Merla, Cordelia</p>
 <h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="session-recap">Session Recap<a href="https://unoriginaluser03.github.io/the-compendium-of-gronovia/sessions/session1#session-recap" class="hash-link" aria-label="Direct link to Session Recap" title="Direct link to Session Recap" translate="no">​</a></h2>
@@ -22,17 +22,21 @@
 <p>Inside the warehouse, a minor phantom attacked. After defeating it, Merla attempted to free a caged dragonborn, triggering a magical explosion that knocked her unconscious. When she awoke instead of who she thought she freed, Merla instead found a gnome called Duggle Grimsby. Enraged, she tried to attack the gnome that promised to stay with her, insisting that he saw her as a hero. Meanwhile, Cordelia opened a jewellery box containing a ring that spoke to her in her lover's voice. Upon wearing it, the ring fused to her finger, stealing the memory of her falling in love with her ex-lover, Theo, and leaving her with the eery feeling she may lose more. A note inside the ring's box read: "Bento's Bazaar, Venmeer" - a lead.</p>
 <h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="handouts">Handouts<a href="https://unoriginaluser03.github.io/the-compendium-of-gronovia/sessions/session1#handouts" class="hash-link" aria-label="Direct link to Handouts" title="Direct link to Handouts" translate="no">​</a></h2>
 <div class="grid_isBp"><div class="card_xbHR md_z42W"><img src="https://unoriginaluser03.github.io/the-compendium-of-gronovia/img/handouts/session1-note1.png" alt="Cecilia's Note #1" class="thumbnail_kbC7"><div class="cardTitle_VOev">Cecilia's Note #1</div></div><div class="card_xbHR md_z42W"><img src="https://unoriginaluser03.github.io/the-compendium-of-gronovia/img/handouts/session1-note2.png" alt="Shipment Note" class="thumbnail_kbC7"><div class="cardTitle_VOev">Shipment Note</div></div><div class="card_xbHR md_z42W"><img src="https://unoriginaluser03.github.io/the-compendium-of-gronovia/img/handouts/session1-note3.png" alt="Cecilia's Note #2" class="thumbnail_kbC7"><div class="cardTitle_VOev">Cecilia's Note #2</div></div><div class="card_xbHR md_z42W"><img src="https://unoriginaluser03.github.io/the-compendium-of-gronovia/img/handouts/session1-note4.png" alt="Dwarven Diary Entry #1" class="thumbnail_kbC7"><div class="cardTitle_VOev">Dwarven Diary Entry #1</div></div><div class="card_xbHR md_z42W"><img src="https://unoriginaluser03.github.io/the-compendium-of-gronovia/img/handouts/session1-note5.png" alt="Dwarven Diary Entry #2" class="thumbnail_kbC7"><div class="cardTitle_VOev">Dwarven Diary Entry #2</div></div></div>]]></content>
+        <author>
+            <name>Dungeon Master</name>
+        </author>
         <category label="campaign/ruarden-hold" term="campaign/ruarden-hold"/>
     </entry>
     <entry>
         <title type="html"><![CDATA[Session 2: The Road Ahead]]></title>
         <id>https://unoriginaluser03.github.io/the-compendium-of-gronovia/sessions/session2</id>
         <link href="https://unoriginaluser03.github.io/the-compendium-of-gronovia/sessions/session2"/>
-        <updated>2026-04-04T07:38:19.000Z</updated>
+        <updated>2026-04-08T12:22:13.000Z</updated>
         <summary type="html"><![CDATA[Players: Merla, Cordelia]]></summary>
         <content type="html"><![CDATA[<p><strong>Players:</strong> Merla, Cordelia</p>
 <h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="session-recap">Session Recap<a href="https://unoriginaluser03.github.io/the-compendium-of-gronovia/sessions/session2#session-recap" class="hash-link" aria-label="Direct link to Session Recap" title="Direct link to Session Recap" translate="no">​</a></h2>
 <p>Left in the cold dank warehouse deep in Ruarden Hold, Merla confronted with Duggle heard from him a cryptic rhyme - some kind of warning. Moments later, two dwarves entered the warehouse, forcing Merla and Cordelia into hiding.</p>
+<!-- -->
 <p>As they moved through the halls, they overheard Cecilia ordering a full search of the hold after she discovered what had happened to Trudie, her daughter, and discovering that their rooms were empty. Managing to avoid detection, the players made it to the top of the hold, where Cordelia tripped, alerting a dwarf in the process. Duggle appeared again, this time distracting dwarves, allowing the party to narrowly escape.</p>
 <p>Beyond the hold, the Balguard mountains, now plump with fresh snow from the previous night's blizzard, proved treacherous. The steep terrain paired with the slick ground made the descent dangerous... Cordelia slipped down the mountain side and injured herself, while Merla who was subtly warned by Duggle, managed to navigate the mountain-face with greater ease.</p>
 <p>Eventually the party made it from the mountains into a dense woodland, and eventually to the lakeside village of Cloverstead. There they learned of disappearances in a town far away called "Ravenwater," and that Henry Greenwich's body had been recovered from there - with the person who found him due to appear before the high court of Venmeer.</p>
