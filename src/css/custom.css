@@ -70,27 +70,6 @@ h6 {
   background-color: var(--ifm-background-color);
 }
 
-/* Leaflet marker styling */
-.leaflet-marker-icon svg,
-.leaflet-marker-icon div {
-  font-size: 24px;
-  line-height: 1;
-  transition: transform 0.2s;
-  cursor: pointer;
-}
-
-.leaflet-marker-icon svg:hover,
-.leaflet-marker-icon div:hover {
-  transform: scale(1.3);
-  color: var(--ifm-color-primary);
-}
-
-.leaflet-marker-icon svg.disabled,
-.leaflet-marker-icon div.disabled {
-  opacity: 0.7;
-}
-
-
 /* Leaflet control bar styling */
 .leaflet-bar a {
   background-color: var(--ifm-background-color);
@@ -130,20 +109,6 @@ h6 {
 .leaflet-container {
   z-index: 0;
   font-family: var(--ifm-font-family-base);
-}
-
-/* Fullscreen mode: force ABOVE everything */
-.leaflet-container.leaflet-fullscreen-on {
-  z-index: 9999 !important;
-  position: fixed !important;
-  inset: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-}
-
-html.leaflet-fullscreen-on,
-body.leaflet-fullscreen-on {
-  overflow: hidden;
 }
 
 /* Sidebar items */
@@ -187,3 +152,4 @@ body.leaflet-fullscreen-on {
   font-family: var(--ifm-font-family-base);
   font-size: var(--ifm-font-size-base);
 }
+

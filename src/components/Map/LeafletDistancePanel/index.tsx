@@ -14,7 +14,7 @@ export default function LeafletDistancePanel({
     return (
         <LeafletControl position="bottomright">
             <div className="leaflet-distance-panel">
-                <strong>Distance:</strong> {displayDistance?.toFixed(2)} miles
+                <strong>Distance:</strong> {displayDistance?.toFixed(1)} miles
                 {travelInfo.map((t) => (
                     <div key={t.pace}>
                         {t.pace}: {t.days}d {t.hours}h

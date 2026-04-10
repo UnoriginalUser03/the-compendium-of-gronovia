@@ -4,4 +4,9 @@
 + Disable fullscreen map on mobile
 + Add search 
 + Add graph
++ Add click stop propogation on lines
 + Add disable button to clouds
+
++ Fix mobile fullscreen
++ Emma feature 
++ Layer filtering on map 

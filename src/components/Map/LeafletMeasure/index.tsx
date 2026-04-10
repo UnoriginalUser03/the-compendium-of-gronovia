@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from "react";
+import React, {
+    useState,
+    useEffect,
+    useRef,
+    forwardRef,
+    useImperativeHandle,
+} from "react";
 import {
     useMapEvents,
     Polyline,
@@ -6,6 +12,7 @@ import {
     useMap,
     FeatureGroup,
 } from "react-leaflet";
+import L, { LeafletMouseEvent } from "leaflet";
 
 type CompletedLine = {
     id: string;
@@ -14,11 +21,22 @@ type CompletedLine = {
 };
 
 const LeafletMeasure = forwardRef(function LeafletMeasure(
-    { scaleRatio, onDistanceMeasured, onHoverDistanceChange, measureEnabled }: {
+    {
+        scaleRatio,
+        onHoverDistanceChange,
+        onLineSelected,
+        onSelectedDistanceChange,
+        measureEnabled,
+        onSelectedLineChange
+    }: {
         scaleRatio: number;
-        onDistanceMeasured?: (miles: number) => void;
         onHoverDistanceChange?: (miles: number | null) => void;
+        onLineSelected?: (line: CompletedLine | null) => void;
+        onSelectedDistanceChange?: (miles: number | null) => void;
         measureEnabled: boolean;
+        onSelectedLineChange?: (id: string | null) => void;
+        selectedId?: string | null;
+        setSelectedId?: (id: string | null) => void;
     },
     ref: React.Ref<{ clear: () => void }>
 ) {
@@ -29,26 +47,56 @@ const LeafletMeasure = forwardRef(function LeafletMeasure(
         null
     );
     const [completed, setCompleted] = useState<CompletedLine[]>([]);
+
     const [hoveredId, setHoveredId] = useState<string | null>(null);
+    const [selectedId, setSelectedId] = useState<string | null>(null);
+
     const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(
         null
     );
 
-    // Refs to avoid stale closures
+    // Refs (avoid stale closures)
     const completedRef = useRef(completed);
     const hoveredIdRef = useRef(hoveredId);
 
-    useEffect(() => { completedRef.current = completed; }, [completed]);
-    useEffect(() => { hoveredIdRef.current = hoveredId; }, [hoveredId]);
+    useEffect(() => {
+        completedRef.current = completed;
+    }, [completed]);
 
-    // Reset on measure mode off
+    useEffect(() => {
+        hoveredIdRef.current = hoveredId;
+    }, [hoveredId]);
+
+    // Reset when disabled
     useEffect(() => {
         if (!measureEnabled) clearAll();
     }, [measureEnabled]);
 
-    // Expose clear method
+    useEffect(() => {
+        if (!measureEnabled) {
+            map.doubleClickZoom.enable();
+            return;
+        }
+
+        if (currentPoints.length > 1) {
+            map.doubleClickZoom.disable();
+        } else {
+            map.doubleClickZoom.enable();
+        }
+
+    }, [map, measureEnabled, currentPoints.length]);
+
+    useEffect(() => {
+        if (selectedId) {
+            const line = completedRef.current.find(c => c.id === selectedId) || null;
+            onSelectedDistanceChange?.(line?.distance ?? null);
+        } else {
+            onSelectedDistanceChange?.(null);
+        }
+    }, [selectedId, onSelectedDistanceChange]);
+
     useImperativeHandle(ref, () => ({
-        clear: clearAll
+        clear: clearAll,
     }));
 
     function clearAll() {
@@ -56,11 +104,13 @@ const LeafletMeasure = forwardRef(function LeafletMeasure(
         setPreviewPoint(null);
         setCompleted([]);
         setHoveredId(null);
+        setSelectedId(null);
         setTooltipPos(null);
         onHoverDistanceChange?.(null);
+        onLineSelected?.(null);
     }
 
-    // Ensure each completed line has its own pane
+    // Ensure panes exist
     useEffect(() => {
         completed.forEach((line) => {
             const paneName = `measure-${line.id}`;
@@ -76,32 +126,22 @@ const LeafletMeasure = forwardRef(function LeafletMeasure(
     }, [completed, map]);
 
     const calculateDistance = (points: [number, number][]) => {
-        let totalUnits = 0;
-
+        let total = 0;
         for (let i = 1; i < points.length; i++) {
             const [aLat, aLng] = points[i - 1];
             const [bLat, bLng] = points[i];
             const dx = bLat - aLat;
             const dy = bLng - aLng;
-            totalUnits += Math.sqrt(dx * dx + dy * dy);
+            total += Math.sqrt(dx * dx + dy * dy);
         }
-
-        return totalUnits * scaleRatio;
+        return total * scaleRatio;
     };
 
-    // Distance from point to segment in pixel space
     const distToSegment = (p: any, a: any, b: any) => {
-        const x = p.x,
-            y = p.y;
-        const x1 = a.x,
-            y1 = a.y;
-        const x2 = b.x,
-            y2 = b.y;
-
-        const A = x - x1;
-        const B = y - y1;
-        const C = x2 - x1;
-        const D = y2 - y1;
+        const A = p.x - a.x;
+        const B = p.y - a.y;
+        const C = b.x - a.x;
+        const D = b.y - a.y;
 
         const dot = A * C + B * D;
         const lenSq = C * C + D * D;
@@ -110,17 +150,32 @@ const LeafletMeasure = forwardRef(function LeafletMeasure(
         if (param < 0) param = 0;
         else if (param > 1) param = 1;
 
-        const xx = x1 + param * C;
-        const yy = y1 + param * D;
+        const xx = a.x + param * C;
+        const yy = a.y + param * D;
 
-        const dx = x - xx;
-        const dy = y - yy;
+        const dx = p.x - xx;
+        const dy = p.y - yy;
 
         return Math.sqrt(dx * dx + dy * dy);
     };
 
+    const handleLineClick = (id: string) => (e: LeafletMouseEvent) => {
+        L.DomEvent.stopPropagation(e);
+        setSelectedId(id);
+
+        const line = completedRef.current.find((c) => c.id === id) || null;
+        onLineSelected?.(line);
+    };
+
     useMapEvents({
         click(e) {
+            // Deselect if not drawing
+            if (currentPoints.length === 0 && selectedId !== null) {
+                setSelectedId(null);
+                onLineSelected?.(null);
+                return;
+            }
+
             const p: [number, number] = [e.latlng.lat, e.latlng.lng];
             setCurrentPoints((prev) => [...prev, p]);
             setPreviewPoint(null);
@@ -128,17 +183,18 @@ const LeafletMeasure = forwardRef(function LeafletMeasure(
 
         dblclick() {
             if (currentPoints.length > 1) {
-                const distMiles = calculateDistance(currentPoints);
-                onDistanceMeasured?.(distMiles);
+                const dist = calculateDistance(currentPoints);
+                const id = crypto.randomUUID();
 
                 setCompleted((prev) => [
                     ...prev,
                     {
-                        id: crypto.randomUUID(),
+                        id: id,
                         points: currentPoints,
-                        distance: distMiles,
+                        distance: dist,
                     },
                 ]);
+                setSelectedId(id)
             }
 
             setCurrentPoints([]);
@@ -147,16 +203,14 @@ const LeafletMeasure = forwardRef(function LeafletMeasure(
 
         mousemove(e) {
             const cursor = map.latLngToContainerPoint(e.latlng);
-
             const isDrawing = currentPoints.length > 0;
 
-            // Active preview
             if (isDrawing) {
                 setPreviewPoint([e.latlng.lat, e.latlng.lng]);
                 setTooltipPos({ x: cursor.x, y: cursor.y });
             }
 
-            let foundHover: string | null = null;
+            let found: string | null = null;
 
             for (const line of completedRef.current) {
                 for (let i = 1; i < line.points.length; i++) {
@@ -169,31 +223,26 @@ const LeafletMeasure = forwardRef(function LeafletMeasure(
                         lng: line.points[i][1],
                     });
 
-                    const dist = distToSegment(cursor, a, b);
-                    if (dist < 8) {
-                        foundHover = line.id;
+                    if (distToSegment(cursor, a, b) < 8) {
+                        found = line.id;
                         break;
                     }
                 }
-                if (foundHover) break;
+                if (found) break;
             }
 
-            // Update hovered line state
-            if (foundHover !== hoveredIdRef.current) {
-                setHoveredId(foundHover);
+            if (found !== hoveredIdRef.current) {
+                setHoveredId(found);
 
-                if (foundHover) {
-                    const line = completedRef.current.find(
-                        (c) => c.id === foundHover
-                    )!;
+                if (found) {
+                    const line = completedRef.current.find((c) => c.id === found)!;
                     onHoverDistanceChange?.(line.distance);
                 } else {
                     onHoverDistanceChange?.(null);
                 }
             }
 
-            // Update tooltip position only if hovering or drawing
-            if (foundHover || isDrawing) {
+            if (found || isDrawing) {
                 setTooltipPos({ x: cursor.x, y: cursor.y });
             } else {
                 setTooltipPos(null);
@@ -202,6 +251,7 @@ const LeafletMeasure = forwardRef(function LeafletMeasure(
 
         contextmenu() {
             setCurrentPoints((prev) => prev.slice(0, -1));
+            setPreviewPoint(null); // 👈 add this
         },
     });
 
@@ -218,36 +268,69 @@ const LeafletMeasure = forwardRef(function LeafletMeasure(
 
     return (
         <>
-            {/* Completed measurements */}
             {completed.map((line) => {
                 const isHovered = hoveredId === line.id;
+                const isSelected = selectedId === line.id;
                 const paneName = `measure-${line.id}`;
 
                 return (
                     <FeatureGroup key={line.id} pane={paneName}>
                         <Polyline
-                            key={`${line.id}-${isHovered}`} // 🔥 FORCE re-render
+                            key={`${line.id}-${isHovered}-${isSelected}`}
                             positions={line.points}
-                            color={isHovered ? primary : secondary}
-                            weight={isHovered ? 6 : 4}
+                            color={
+                                isSelected
+                                    ? primary
+                                    : isHovered
+                                        ? primary
+                                        : secondary
+                            }
+                            weight={
+                                isSelected
+                                    ? 7
+                                    : isHovered
+                                        ? 6
+                                        : 4
+                            }
+                            eventHandlers={{
+                                click: handleLineClick(line.id),
+                            }}
                         />
 
                         {line.points.map((p, idx) => (
                             <CircleMarker
-                                key={`${line.id}-dot-${idx}-${isHovered}`}
+                                key={`${line.id}-dot-${idx}-${isHovered}-${isSelected}`}
                                 center={p}
-                                radius={isHovered ? 5 : 4}
-                                color={isHovered ? primary : secondary}
-                                fillColor={isHovered ? primary : secondary}
-                                fillOpacity={isHovered ? 0.9 : 0.7}
+                                radius={
+                                    isSelected ? 6 : isHovered ? 5 : 4
+                                }
+                                color={
+                                    isSelected
+                                        ? primary
+                                        : isHovered
+                                            ? primary
+                                            : secondary
+                                }
+                                fillColor={
+                                    isSelected
+                                        ? primary
+                                        : isHovered
+                                            ? primary
+                                            : secondary
+                                }
+                                fillOpacity={
+                                    isSelected ? 1 : isHovered ? 0.9 : 0.7
+                                }
                                 weight={2}
+                                eventHandlers={{
+                                    click: handleLineClick(line.id),
+                                }}
                             />
                         ))}
                     </FeatureGroup>
                 );
             })}
 
-            {/* Active measurement */}
             {activeLine.length > 1 && (
                 <Polyline
                     positions={activeLine}
@@ -256,7 +339,6 @@ const LeafletMeasure = forwardRef(function LeafletMeasure(
                 />
             )}
 
-            {/* Active dots */}
             {currentPoints.map((p, i) => (
                 <CircleMarker
                     key={i}
@@ -268,7 +350,6 @@ const LeafletMeasure = forwardRef(function LeafletMeasure(
                 />
             ))}
 
-            {/* Preview dot */}
             {previewPoint && (
                 <CircleMarker
                     center={previewPoint}
@@ -280,7 +361,6 @@ const LeafletMeasure = forwardRef(function LeafletMeasure(
                 />
             )}
 
-            {/* Tooltip */}
             {tooltipPos && (hoveredId || currentPoints.length > 0) && (
                 <div
                     style={{
@@ -294,13 +374,14 @@ const LeafletMeasure = forwardRef(function LeafletMeasure(
                         pointerEvents: "none",
                         zIndex: 2000,
                         fontSize: "0.85rem",
-                        fontFamily: "var(--ifm-font-family-base)",
                     }}
                 >
                     <strong>
                         {hoveredId
-                            ? completed.find((c) => c.id === hoveredId)?.distance.toFixed(2)
-                            : activeDistance?.toFixed(2)}
+                            ? completedRef.current
+                                .find((c) => c.id === hoveredId)
+                                ?.distance.toFixed(1)
+                            : activeDistance?.toFixed(1)}
                     </strong>{" "}
                     miles
                 </div>

@@ -1,0 +1,77 @@
+.backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 99998;
+    backdrop-filter: blur(2px);
+}
+
+.modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    z-index: 100000;
+
+    min-width: 280px;
+    max-width: 360px;
+    animation: popIn 120ms ease-out;
+}
+
+
+@keyframes popIn {
+    from {
+        transform: translate(-50%, -48%) scale(0.55);
+        opacity: 0;
+    }
+
+    to {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+/* TITLE */
+.title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: var(--ifm-font-color-base);
+}
+
+/* FIELD WRAPPER */
+.field {
+    margin-bottom: 0.75rem;
+}
+
+/* ACTION ROW */
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+:global(.input),
+:global(.select) {
+    width: 100%;
+    font-family: var(--ifm-font-family-base);
+    font-size: var(--ifm-font-size-base);
+}
+
+:global(.input),
+:global(.select) {
+    border: 1px solid var(--ifm-color-emphasis-300);
+    border-radius: var(--ifm-global-radius);
+    background-color: var(--ifm-background-color);
+    color: var(--ifm-font-color-base);
+    padding: 0.4rem 0.6rem;
+}
+
+:global(.input):focus,
+:global(.select):focus {
+    outline: none;
+    border-color: var(--ifm-color-primary);
+    box-shadow: 0 0 0 2px var(--ifm-color-primary-lightest);
+}

@@ -1,0 +1,32 @@
+.pinWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pin {
+    width: 28px;
+    height: 28px;
+
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    transition: transform 0.15s ease;
+}
+.pin:hover {
+    transform: rotate(-45deg) scale(1.3);
+}
+
+.pinIcon {
+    transform: rotate(45deg);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--ifm-font-color-base);
+}
