@@ -7,7 +7,7 @@ import {
     MarkerTypeGroups,
 } from "../LeafletTypes";
 
-import { Save, Trash2, Plus, X } from "lucide-react";
+import { Save, Trash2, Plus, X, Check } from "lucide-react";
 
 type Props = {
     dialog: DialogState;
@@ -68,7 +68,7 @@ export default function LeafletMarkerEditorModal({
                     ? [
                         {
                             label: "Create",
-                            icon: <Plus size={16} />,
+                            icon: <Check size={16} />,
                             variant: "primary" as const,
                             respectsValidation: true,
                             onClick: async (values: any) => {
@@ -147,12 +147,6 @@ export default function LeafletMarkerEditorModal({
                                     label: v.label,
                                 })
                             ),
-                        },
-                        {
-                            name: "locked",
-                            type: "checkbox",
-                            defaultChecked: marker?.locked ?? false,
-                            description: "Lock position",
                         },
                         {
                             name: "note",

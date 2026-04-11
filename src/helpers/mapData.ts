@@ -55,11 +55,13 @@ export function clearUserDefaultCamera(mapId: string) {
  */
 export function createMapShareState(
   visibleMarkerTypes: Record<MarkerType, boolean>,
-  sessionCamera: MapView
+  sessionCamera: MapView,
+  selectedMarkerId: string | null
 ): MapShareState {
   return {
     visibleMarkerTypes,
     sessionCamera,
+    selectedMarkerId
   };
 }
 
@@ -70,14 +72,16 @@ export function createMapShareState(
 export function createMapSaveShareState(
   visibleMarkerTypes: Record<MarkerType, boolean>,
   userMarkers: MarkerData[],
+  selectedMarkerId: string | null,
   sessionCamera?: MapView,
   userDefaultCamera?: MapView
 ): MapSaveShareState {
   return {
     visibleMarkerTypes,
     userMarkers,
+    selectedMarkerId,
     sessionCamera,
-    userDefaultCamera,
+    userDefaultCamera
   };
 }
 
@@ -134,6 +138,7 @@ export function decodeMapSaveState(
 export function createMapExport(
   userMarkers: MarkerData[],
   visibleMarkerTypes: Record<MarkerType, boolean>,
+  selectedMarkerId: string | null,
   sessionCamera?: MapView,
   userDefaultCamera?: MapView
 ): MapExportData {
@@ -141,6 +146,7 @@ export function createMapExport(
     version: 2,
     userMarkers,
     visibleMarkerTypes,
+    selectedMarkerId,
     sessionCamera,
     userDefaultCamera,
   };
@@ -169,6 +175,7 @@ export function decodeMapFile(raw: string): MapExportData {
     visibleMarkerTypes: data.visibleMarkerTypes,
     sessionCamera: data.sessionCamera,
     userDefaultCamera: data.userDefaultCamera,
+    selectedMarkerId: data.selectedMarkerId
   };
 }
 
@@ -262,6 +269,7 @@ export function readMapFile(file: File): Promise<MapExportData> {
           visibleMarkerTypes: data.visibleMarkerTypes,
           sessionCamera: data.sessionCamera,
           userDefaultCamera: data.userDefaultCamera,
+          selectedMarkerId: data.selectedMarkerId,
         });
       } catch (err) {
         reject(err);
@@ -271,4 +279,22 @@ export function readMapFile(file: File): Promise<MapExportData> {
     reader.onerror = reject;
     reader.readAsText(file);
   });
+}
+
+const selectedMarkerKey = (mapId: string) =>
+  `map-selected-marker-${mapId}`;
+
+export function saveSelectedMarker(
+  markerId: string | null,
+  mapId: string
+) {
+  if (!markerId) {
+    localStorage.removeItem(selectedMarkerKey(mapId));
+  } else {
+    localStorage.setItem(selectedMarkerKey(mapId), markerId);
+  }
+}
+
+export function loadSelectedMarker(mapId: string): string | null {
+  return localStorage.getItem(selectedMarkerKey(mapId));
 }

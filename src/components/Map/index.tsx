@@ -4,6 +4,7 @@ import { travelTimeEstimate } from "../../helpers/travelCalculator";
 
 import {
   DialogState,
+  LeafletContextMenuHandle,
   LeafletMapProps,
   MapView,
   MarkerData,
@@ -23,6 +24,8 @@ import {
   readMapFile,
   createMapExport,
   saveSessionCamera,
+  loadSelectedMarker,
+  saveSelectedMarker,
 } from "../../helpers/mapData";
 
 import { useLocation, useHistory } from "@docusaurus/router";
@@ -94,6 +97,11 @@ export default function Map(props: LeafletMapProps) {
   const [hoverDistance, setHoverDistance] = useState<number | null>(null);
   const [selectedDistance, setSelectedDistance] = useState<number | null>(null);
   const [selectedLineId, setSelectedLineId] = useState<string | null>(null);
+  const [linkCopied, setLinkCopied] = useState(false);
+  const [defaultViewSaved, setDefaultViewSaved] = useState(false);
+  const [selectedMarkerId, setSelectedMarkerId] = useState<string | null>(() => {
+    return loadSelectedMarker(mapId);
+  });
   const [layersOpen, setLayersOpen] = useState(false);
 
   const [dialog, setDialog] = useState<DialogState>({ mode: "closed" });
@@ -112,6 +120,38 @@ export default function Map(props: LeafletMapProps) {
     ? travelTimeEstimate(displayDistance)
     : [];
 
+  const markers = props.markers ?? [];
+
+  const allMarkerIds = useMemo(() => {
+    const ids = new Set<string>();
+
+    for (const m of markers) ids.add(m.id);
+    for (const m of userMarkers) ids.add(m.id);
+
+    return ids;
+  }, [markers, userMarkers]);
+
+  useEffect(() => {
+    if (!selectedMarkerId) return;
+
+    if (!allMarkerIds.has(selectedMarkerId)) {
+      setSelectedMarkerId(null);
+    }
+  }, [allMarkerIds, selectedMarkerId]);
+
+  const lockState = useMemo(() => {
+    if (userMarkers.length === 0) {
+      return "empty";
+    }
+
+    const allLocked = userMarkers.every(m => m.locked);
+    const allUnlocked = userMarkers.every(m => !m.locked);
+
+    if (allLocked) return "all-locked";
+    if (allUnlocked) return "all-unlocked";
+    return "mixed";
+  }, [userMarkers]);
+
   // =========================================================
   // INITIAL CAMERA LOAD (MOUNT ONLY)
   // =========================================================
@@ -121,7 +161,7 @@ export default function Map(props: LeafletMapProps) {
 
     const initial = session ?? userDefault ?? systemDefaultCamera;
 
-    updateCamera(initial, true, false); 
+    updateCamera(initial, true, false);
   }, []);
   // =========================================================
   // URL HANDLING
@@ -154,12 +194,16 @@ export default function Map(props: LeafletMapProps) {
 
         updateCamera(target, true, false);
         setVisibleMarkerTypes(decoded.visibleMarkerTypes);
+        setSelectedMarkerId(decoded.selectedMarkerId ?? null);
       }
 
       history.replace({ search: "" });
     }
   }, []);
 
+  useEffect(() => {
+    saveSelectedMarker(selectedMarkerId, mapId);
+  }, [selectedMarkerId, mapId]);
   // =========================================================
   // FILE IMPORT
   // =========================================================
@@ -181,6 +225,7 @@ export default function Map(props: LeafletMapProps) {
           visibleMarkerTypes: decoded.visibleMarkerTypes,
           sessionCamera: decoded.sessionCamera ?? undefined,
           userDefaultCamera: decoded.userDefaultCamera ?? undefined,
+          selectedMarkerId: decoded.selectedMarkerId ?? undefined,
         },
       });
     };
@@ -195,6 +240,7 @@ export default function Map(props: LeafletMapProps) {
     const data = createMapExport(
       userMarkers,
       visibleMarkerTypes,
+      selectedMarkerId ?? "",
       cameraRef.current,
       userDefaultCamera ?? undefined
     );
@@ -222,11 +268,17 @@ export default function Map(props: LeafletMapProps) {
 
     saveUserDefaultCamera(current, mapId);
     setUserDefaultCameraState(current);
+
+    setDefaultViewSaved(true);
+    setTimeout(() => setDefaultViewSaved(false), 800);
   };
 
   const handleClearUserDefaultCamera = () => {
     clearUserDefaultCamera(mapId);
     setUserDefaultCameraState(null);
+
+    setDefaultViewSaved(true);
+    setTimeout(() => setDefaultViewSaved(false), 800);
   };
 
   const persistCamera = (view: MapView) => {
@@ -239,6 +291,36 @@ export default function Map(props: LeafletMapProps) {
   const handleCreateMarker = (position: [number, number]) => {
     setDialog({ mode: "create", position });
   };
+
+  const handleDeleteMarker = (marker: MarkerData) => {
+    setDialog({ mode: "delete", marker });
+  }
+
+  const handleLockAllMarkers = () => {
+    setUserMarkers(prev =>
+      prev.map(m => ({
+        ...m,
+        locked: true,
+      }))
+    );
+  };
+
+  const handleUnlockAllMarkers = () => {
+    setUserMarkers(prev =>
+      prev.map(m => ({
+        ...m,
+        locked: false,
+      }))
+    );
+  };
+
+  const onLinkCopied = () => {
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 1200);
+  };
+
+
+  const contextMenuRef = useRef<LeafletContextMenuHandle>(null);
 
   // =========================================================
   // RENDER
@@ -261,6 +343,7 @@ export default function Map(props: LeafletMapProps) {
               onHoverDistanceChange={setHoverDistance}
               onSelectedDistanceChange={setSelectedDistance}
               onStartCreateMarker={handleCreateMarker}
+              handleDeleteMarker={handleDeleteMarker}
               dialog={dialog}
               setDialog={setDialog}
               selectedLineId={selectedLineId}
@@ -282,6 +365,15 @@ export default function Map(props: LeafletMapProps) {
               onRecenter={handleRecenter}
               onSaveUserDefaultCamera={handleSetUserDefaultCamera}
               onClearUserDefaultCamera={handleClearUserDefaultCamera}
+              contextMenu={contextMenuRef}
+              selectedMarkerId={selectedMarkerId}
+              setSelectedMarkerId={setSelectedMarkerId}
+              lockAllMarkers={handleLockAllMarkers}
+              unlockAllMarkers={handleUnlockAllMarkers}
+              lockState={lockState}
+              onLinkCopied={onLinkCopied}
+              linkCopied={linkCopied}
+              defaultViewSaved={defaultViewSaved}
             />
           </div>
         );

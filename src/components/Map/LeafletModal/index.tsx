@@ -102,6 +102,7 @@ export default function LeafletModal({
       })
     ) as FormValues
   );
+  
 
   useEffect(() => {
     setContainer(map.getContainer());
@@ -209,6 +210,7 @@ export default function LeafletModal({
                               [field.name]: e.target.value,
                             }))
                           }
+                          style={field.css?.style}
                         >
                           <option value="">Select...</option>
                           {field.options.map((o) => (
@@ -233,6 +235,7 @@ export default function LeafletModal({
                           placeholder={field.placeholder}
                           rows={field.rows}
                           cols={field.cols}
+                          style={field.css?.style}
                         />
                       );
 
@@ -249,6 +252,7 @@ export default function LeafletModal({
                               [field.name]: !Boolean(p[field.name]),
                             }))
                           }
+                          style={field.css?.style}
                         >
                           <div className={styles.checkboxLabel}>
                             {field.description ?? field.name}
@@ -275,6 +279,7 @@ export default function LeafletModal({
                             }))
                           }
                           placeholder={field.placeholder}
+                          style={field.css?.style}
                         />
                       );
                   }

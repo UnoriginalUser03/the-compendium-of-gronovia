@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useMap } from "react-leaflet";
 import L from "leaflet";
-import { CircleDot, Save, RotateCcw } from "lucide-react";
+import { CircleDot, Save, RotateCcw, Check } from "lucide-react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 type Props = {
@@ -9,6 +9,7 @@ type Props = {
   onSaveDefault: () => void;
   onClearDefault: () => void;
   hasUserDefault: boolean;
+  defaultViewSaved: boolean;
 };
 
 export default function LeafletRecenter({
@@ -16,6 +17,7 @@ export default function LeafletRecenter({
   onSaveDefault,
   onClearDefault,
   hasUserDefault,
+  defaultViewSaved,
 }: Props) {
   const map = useMap();
 
@@ -33,10 +35,10 @@ export default function LeafletRecenter({
     let btnReset: HTMLAnchorElement | null = null;
 
     btnRecenter.innerHTML = renderToStaticMarkup(
-      <span><CircleDot size={16} /></span>
+      <span><CircleDot size={18} /></span>
     );
     btnSave.innerHTML = renderToStaticMarkup(
-      <span><Save size={16} /></span>
+      <span>{defaultViewSaved ? <Check size={18} color={"var(--ifm-color-success)"} /> : <Save size={18} />}</span>
     );
 
     btnRecenter.title = "Recenter";
@@ -59,7 +61,7 @@ export default function LeafletRecenter({
       btnReset = L.DomUtil.create("a", "leaflet-btn reset", container);
 
       btnReset.innerHTML = renderToStaticMarkup(
-        <span><RotateCcw size={16} /></span>
+        <span><RotateCcw size={18} /></span>
       );
 
       btnReset.title = "Reset to system default";
@@ -77,7 +79,7 @@ export default function LeafletRecenter({
       btnSave.remove();
       btnReset?.remove();
     };
-  }, [map, onRecenter, onSaveDefault, onClearDefault, hasUserDefault]);
+  }, [map, onRecenter, onSaveDefault, onClearDefault, hasUserDefault, defaultViewSaved]);
 
   return null;
 }

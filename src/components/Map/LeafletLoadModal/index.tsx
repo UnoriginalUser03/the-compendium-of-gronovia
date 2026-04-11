@@ -16,6 +16,7 @@ type Props = {
     setUserDefaultCamera: (v?: MapView) => void;
     setCamera: (v: MapView | null, animate: boolean, persist: boolean) => void;
     setAnimateCamera: (v: MapView | null) => void;
+    setSelectedMarker: (markerId: string | null) => void;
 };
 
 export default function LeafletLoadModal({
@@ -26,6 +27,7 @@ export default function LeafletLoadModal({
     setUserDefaultCamera,
     setCamera,
     setAnimateCamera,
+    setSelectedMarker,
 }: Props) {
     if (dialog.mode !== "load-warning") return null;
 
@@ -36,6 +38,7 @@ export default function LeafletLoadModal({
         let visibility: Record<string, boolean> = {};
         let sessionCamera: MapView | undefined;
         let userDefaultCamera: MapView | undefined;
+        let selectedMarkerId: string | undefined;
 
         if (dialog.file) {
             const data = await readMapFile(dialog.file);
@@ -44,6 +47,7 @@ export default function LeafletLoadModal({
             visibility = data.visibleMarkerTypes ?? {};
             sessionCamera = data.sessionCamera ?? undefined;
             userDefaultCamera = data.userDefaultCamera ?? undefined;
+            selectedMarkerId = data.selectedMarkerId ?? undefined
         }
 
         if (dialog.payload) {
@@ -51,6 +55,8 @@ export default function LeafletLoadModal({
             visibility = dialog.payload.visibleMarkerTypes ?? {};
             sessionCamera = dialog.payload.sessionCamera ?? undefined;
             userDefaultCamera = dialog.payload.userDefaultCamera ?? undefined;
+            selectedMarkerId = dialog.payload.selectedMarkerId ?? undefined
+
         }
 
         return {
@@ -58,6 +64,7 @@ export default function LeafletLoadModal({
             visibility,
             sessionCamera,
             userDefaultCamera,
+            selectedMarkerId
         };
     };
 
@@ -73,10 +80,12 @@ export default function LeafletLoadModal({
                         visibility,
                         sessionCamera,
                         userDefaultCamera,
+                        selectedMarkerId
                     } = await loadData();
 
                     setUserMarkers(markers);
                     setVisibleMarkerTypes(visibility);
+                    setSelectedMarker(selectedMarkerId ?? null);
 
                     if (userDefaultCamera) {
                         setUserDefaultCamera(userDefaultCamera);

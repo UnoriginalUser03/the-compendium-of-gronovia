@@ -14,6 +14,7 @@ type Props = {
   onSave?: () => void;
   onLoadRequest?: () => void;
   onShareRequest?: (map: Map | null) => void;
+  linkCopied: boolean;
 };
 
 export default function LeafletMapControls({
@@ -25,10 +26,10 @@ export default function LeafletMapControls({
   onClearSelected,
   onSave,
   onLoadRequest,
-  onShareRequest
+  onShareRequest,
+  linkCopied,
 }: Props) {
   const map = useMap();
-  const [copied, setCopied] = useState(false);
 
   return (
     <LeafletControl position="topright">
@@ -109,15 +110,12 @@ export default function LeafletMapControls({
                 e.stopPropagation();
 
                 onShareRequest?.(map);
-
-                setCopied(true);
-                setTimeout(() => setCopied(false), 1200);
               }}
               title="Share Map"
             >
               <span>
                 <span>
-                  {copied ? <Check size={18} color={"var(--ifm-color-success)"} /> : <Share2 size={18} />}
+                  {linkCopied ? <Check size={18} color={"var(--ifm-color-success)"} /> : <Share2 size={18} />}
                 </span>
               </span>
             </a>

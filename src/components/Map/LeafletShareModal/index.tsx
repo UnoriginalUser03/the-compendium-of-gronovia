@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import LeafletModal from "../LeafletModal";
 import { DialogState, MapView, MarkerData, MarkerType } from "../LeafletTypes";
 import {
@@ -19,15 +19,20 @@ type Props = {
 
     sessionCamera: MapView;
     userDefaultCamera: MapView;
+
+    selectedMarkerId: string | null;
+    onLinkCopied: () => void;
 };
 
 export default function LeafletShareModal({
     dialog,
     setDialog,
     visibleMarkerTypes,
+    selectedMarkerId,
     userMarkers,
     sessionCamera,
     userDefaultCamera,
+    onLinkCopied
 }: Props) {
     if (dialog.mode !== "share") return null;
 
@@ -35,6 +40,11 @@ export default function LeafletShareModal({
 
     const baseUrl =
         `${window.location.origin}${window.location.pathname}`;
+
+    useEffect(() => 
+    {
+        console.log(selectedMarkerId)
+    }, [selectedMarkerId])
 
     return (
         <LeafletModal
@@ -53,12 +63,15 @@ export default function LeafletShareModal({
                     onClick: async () => {
                         const state = createMapShareState(
                             visibleMarkerTypes,
-                            sessionCamera
+                            sessionCamera,
+                            selectedMarkerId
                         );
+
 
                         const url = `${baseUrl}?view=${encodeViewState(state)}`;
 
                         await navigator.clipboard.writeText(url);
+                        onLinkCopied();
                         close();
                     },
                 },
@@ -72,16 +85,21 @@ export default function LeafletShareModal({
                     icon: <Map size={16} />,
                     variant: "primary",
                     onClick: async () => {
+                        
                         const state = createMapSaveShareState(
                             visibleMarkerTypes,
                             userMarkers,
+                            selectedMarkerId,
                             sessionCamera,
                             userDefaultCamera
                         );
 
+                        
+
                         const url = `${baseUrl}?data=${encodeMapSaveState(state)}`;
 
                         await navigator.clipboard.writeText(url);
+                        onLinkCopied();
                         close();
                     },
                 },

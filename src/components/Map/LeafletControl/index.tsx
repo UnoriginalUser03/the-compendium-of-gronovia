@@ -39,7 +39,6 @@ export default function LeafletControl({
     }
 
     return () => {
-      // ✅ Only unmount when component REALLY unmounts
       rootRef.current?.unmount();
       rootRef.current = null;
 

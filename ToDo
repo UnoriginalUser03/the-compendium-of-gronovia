@@ -7,8 +7,8 @@ LONG TERM:
 + Fix mobile fullscreen
 + Possibly add terrain difficulty with overlay? 
 + Stop adding page to URL in handouts when there is not more than 1 page.
++ Allow links to be attached to user markers? 
 
 IMMEDIATE: 
-+ Add default view setter and saving camera position and zoom between sessions. 
-+ Allow links to be attached to user markers? 
+
 

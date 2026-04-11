@@ -127,6 +127,7 @@ export type MapView = {
 export type MapViewSharePayload = {
     visibleMarkerTypes: Record<MarkerType, boolean>;
     sessionCamera: MapView;
+    selectedMarkerId?: string | null;
 };
 
 /**
@@ -139,6 +140,7 @@ export type MapFullSharePayload = {
     visibleMarkerTypes: Record<MarkerType, boolean>;
     sessionCamera?: MapView;
     userDefaultCamera?: MapView;
+    selectedMarkerId?: string | null;
 };
 
 /**
@@ -150,6 +152,7 @@ export type MapExportData = {
     visibleMarkerTypes: Record<MarkerType, boolean>;
     sessionCamera?: MapView | null;
     userDefaultCamera?: MapView | null;
+    selectedMarkerId?: string | null;
 };
 
 /* =========================================================
@@ -203,7 +206,6 @@ export type ModalField =
 /* =========================================================
    SHARE STATE HELPERS
 ========================================================= */
-
 export type MapShareState = MapViewSharePayload;
 
 export type MapSaveShareState = MapFullSharePayload;
@@ -271,4 +273,29 @@ export type LeafletMapProps = {
     onShare: (map: Map | null) => void;
 
     onRecenter: () => void;
+
+    contextMenu: React.RefObject<LeafletContextMenuHandle>;
+
+    selectedMarkerId: string | null;
+    setSelectedMarkerId: (id: string | null) => void;
+
+    lockAllMarkers: () => void;
+    unlockAllMarkers: () => void;
+    lockState: LockState;
+
+    onLinkCopied: () => void;
+    linkCopied: boolean;
+    defaultViewSaved: boolean;
 };
+
+export type LeafletContextMenuHandle = {
+    openMapMenu: (pos: { x: number; y: number; latlng: [number, number] }) => void;
+    openMarkerMenu: (pos: {
+        x: number;
+        y: number;
+        marker: MarkerData;
+    }) => void;
+    close: () => void;
+};
+
+export type LockState = "empty" | "all-locked" | "all-unlocked" | "mixed";

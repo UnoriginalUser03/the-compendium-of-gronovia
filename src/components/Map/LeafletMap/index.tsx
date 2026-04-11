@@ -10,7 +10,7 @@ import LeafletFullscreen from "../LeafletFullscreen";
 import LeafletRecenter from "../LeafletRecenter";
 import LeafletDistancePanel from "../LeafletDistancePanel";
 import LeafletMeasure from "../LeafletMeasure";
-import LeafletUserMarkers from "../LeafletUserMarkers";
+import LeafletUserMarkers from "../LeafletContextMenu";
 import LeafletInteractionController from "../LeafletInteractionController";
 import LeafletLayersPanel from "../LeafletLayersPanel";
 import LeafletMapControls from "../LeafletMapControls";
@@ -20,6 +20,7 @@ import LeafletShareModal from "../LeafletShareModal";
 import LeafletLoadModal from "../LeafletLoadModal";
 
 import { LeafletMapProps } from "../LeafletTypes";
+import LeafletContextMenu from "../LeafletContextMenu";
 
 export default function LeafletMap({
   image,
@@ -74,6 +75,19 @@ export default function LeafletMap({
   onRecenter,
   onSaveUserDefaultCamera,
   onClearUserDefaultCamera,
+
+  contextMenu,
+
+  selectedMarkerId,
+  setSelectedMarkerId,
+
+  lockAllMarkers,
+  unlockAllMarkers,
+  lockState,
+
+  onLinkCopied,
+  linkCopied,
+  defaultViewSaved
 }: LeafletMapProps) {
 
   const measureRef = useRef<{
@@ -81,7 +95,7 @@ export default function LeafletMap({
     removeLine: (id: string) => void;
   }>(null);
 
-  const activeCamera = camera ?? systemDefaultCamera;
+  const activeCamera = userDefaultCamera ?? systemDefaultCamera;
 
   return (
     <MapContainer
@@ -112,7 +126,6 @@ export default function LeafletMap({
             key={marker.id}
             marker={marker}
             interactable={!measureEnabled}
-            onRequestDelete={handleDeleteMarker}
             onRequestEdit={(m) => setDialog({ mode: "edit", marker: m })}
             onRequestMove={(marker, pos) => {
               setUserMarkers((prev) =>
@@ -123,25 +136,40 @@ export default function LeafletMap({
                 )
               );
             }}
-            onToggleLock={(marker) => {
-              setUserMarkers((prev) =>
-                prev.map((item) =>
-                  item.id === marker.id
-                    ? { ...item, locked: !item.locked }
-                    : item
-                )
-              );
+            onRequestMarkerMenu={(marker, x, y) => {
+              contextMenu.current?.openMarkerMenu({
+                marker,
+                x,
+                y,
+              });
             }}
+            isSelected={selectedMarkerId === marker.id}
+            onSelect={() => setSelectedMarkerId(marker.id)}
+            onDeselect={() => setSelectedMarkerId(null)}
           />
         ))}
 
       {/* =====================================================
           USER MARKER CREATION
       ===================================================== */}
-      <LeafletUserMarkers
+      <LeafletContextMenu
+        ref={contextMenu}
+        onCreateMarker={onStartCreateMarker}
+        onEditMarker={(m) => setDialog({ mode: "edit", marker: m })}
+        onDeleteMarker={handleDeleteMarker}
+        onToggleLock={(marker) => {
+          setUserMarkers((prev) =>
+            prev.map((item) =>
+              item.id === marker.id
+                ? { ...item, locked: !item.locked }
+                : item
+            )
+          );
+        }}
         measureEnabled={measureEnabled}
-        dialogOpen={dialog.mode !== "closed"}
-        onStartCreateMarker={onStartCreateMarker}
+        onLockAll={lockAllMarkers}
+        onUnlockAll={unlockAllMarkers}
+        lockState={lockState}
       />
 
       {/* =====================================================
@@ -160,6 +188,7 @@ export default function LeafletMap({
         onSave={onSave}
         onLoadRequest={onLoad}
         onShareRequest={onShare}
+        linkCopied={linkCopied}
       />
 
       {/* =====================================================
@@ -227,6 +256,7 @@ export default function LeafletMap({
         onRecenter={onRecenter}
         onSaveDefault={onSaveUserDefaultCamera}
         onClearDefault={onClearUserDefaultCamera}
+        defaultViewSaved={defaultViewSaved}
       />
 
       {/* =====================================================
@@ -242,9 +272,11 @@ export default function LeafletMap({
         dialog={dialog}
         setDialog={setDialog}
         visibleMarkerTypes={visibleMarkerTypes}
+        selectedMarkerId={selectedMarkerId}
         userMarkers={userMarkers}
         sessionCamera={camera ?? systemDefaultCamera}
         userDefaultCamera={userDefaultCamera ?? systemDefaultCamera}
+        onLinkCopied={onLinkCopied}
       />
 
       <LeafletLoadModal
@@ -255,6 +287,7 @@ export default function LeafletMap({
         setUserDefaultCamera={onSaveUserDefaultCamera}
         setCamera={setCamera}
         setAnimateCamera={setAnimateCamera}
+        setSelectedMarker={setSelectedMarkerId}
       />
     </MapContainer>
   );

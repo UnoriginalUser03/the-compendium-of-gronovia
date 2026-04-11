@@ -5,6 +5,12 @@ export default function LeafletInteractionController({ locked }: { locked: boole
     const map = useMap();
 
     useEffect(() => {
+        if (!map) return;
+
+        const handlePreClick = () => {
+            map.closePopup();
+        };
+
         if (locked) {
             map.dragging.disable();
             map.scrollWheelZoom.disable();
@@ -12,7 +18,8 @@ export default function LeafletInteractionController({ locked }: { locked: boole
             map.boxZoom.disable();
             map.keyboard.disable();
             map.touchZoom.disable();
-            map.tapHold?.disable();
+
+            map.off("preclick"); // safe cleanup
         } else {
             map.dragging.enable();
             map.scrollWheelZoom.enable();
@@ -20,8 +27,13 @@ export default function LeafletInteractionController({ locked }: { locked: boole
             map.boxZoom.enable();
             map.keyboard.enable();
             map.touchZoom.enable();
-            map.tapHold?.enable();
+
+            map.on("preclick", handlePreClick);
         }
+
+        return () => {
+            map.off("preclick", handlePreClick);
+        };
     }, [locked, map]);
 
     return null;
