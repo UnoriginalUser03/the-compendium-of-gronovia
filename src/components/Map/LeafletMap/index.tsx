@@ -123,7 +123,7 @@ export default function LeafletMap({
         .filter((m) => !m.type || visibleMarkerTypes[m.type])
         .map((marker) => (
           <LeafletMarker
-            key={`${marker.id}-${!measureEnabled}`}
+            key={`${marker.id}`}
             marker={marker}
             interactable={!measureEnabled}
             onRequestEdit={(m) => setDialog({ mode: "edit", marker: m })}

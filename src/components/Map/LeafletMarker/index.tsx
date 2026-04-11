@@ -77,13 +77,22 @@ export default function LeafletMarker({
     }
   }, [isSelected]);
 
+  useEffect(() => {
+    const marker = markerRef.current;
+    if (!marker) return;
+
+    const el = marker.getElement();
+    if (!el) return;
+
+    el.style.pointerEvents = interactable ? "auto" : "none";
+  }, [interactable]);
+
   return (
     <Marker
       position={marker.position}
       ref={markerRef}
       icon={icon}
-      interactive={interactable}
-      draggable={marker.isUser && !marker.locked && interactable}
+      draggable={marker.isUser && !marker.locked}
       eventHandlers={{
         popupopen: (e) => {
           L.DomEvent.stopPropagation(e);
