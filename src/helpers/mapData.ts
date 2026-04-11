@@ -9,7 +9,13 @@ import {
 } from "../components/Map/LeafletTypes";
 
 /* =========================================================
-   CAMERA STORAGE
+   SSR SAFETY
+========================================================= */
+
+const isBrowser = typeof window !== "undefined";
+
+/* =========================================================
+   STORAGE KEYS
 ========================================================= */
 
 const sessionKey = (mapId: string) =>
@@ -18,41 +24,74 @@ const sessionKey = (mapId: string) =>
 const defaultKey = (mapId: string) =>
   `map-camera-default-${mapId}`;
 
+const selectedMarkerKey = (mapId: string) =>
+  `map-selected-marker-${mapId}`;
+
+/* =========================================================
+   CAMERA STORAGE (SAFE)
+========================================================= */
+
 export function saveSessionCamera(view: MapView, mapId: string) {
+  if (!isBrowser) return;
   localStorage.setItem(sessionKey(mapId), JSON.stringify(view));
 }
 
 export function loadSessionCamera(mapId: string): MapView | null {
+  if (!isBrowser) return null;
+
   const raw = localStorage.getItem(sessionKey(mapId));
   return raw ? (JSON.parse(raw) as MapView) : null;
 }
 
 export function clearSessionCamera(mapId: string) {
+  if (!isBrowser) return;
   localStorage.removeItem(sessionKey(mapId));
 }
 
 export function saveUserDefaultCamera(view: MapView, mapId: string) {
+  if (!isBrowser) return;
   localStorage.setItem(defaultKey(mapId), JSON.stringify(view));
 }
 
 export function loadUserDefaultCamera(mapId: string): MapView | null {
+  if (!isBrowser) return null;
+
   const raw = localStorage.getItem(defaultKey(mapId));
   return raw ? (JSON.parse(raw) as MapView) : null;
 }
 
 export function clearUserDefaultCamera(mapId: string) {
+  if (!isBrowser) return;
   localStorage.removeItem(defaultKey(mapId));
+}
+
+/* =========================================================
+   SELECTED MARKER STORAGE (SAFE)
+========================================================= */
+
+export function saveSelectedMarker(
+  markerId: string | null,
+  mapId: string
+) {
+  if (!isBrowser) return;
+
+  if (!markerId) {
+    localStorage.removeItem(selectedMarkerKey(mapId));
+  } else {
+    localStorage.setItem(selectedMarkerKey(mapId), markerId);
+  }
+}
+
+export function loadSelectedMarker(mapId: string): string | null {
+  if (!isBrowser) return null;
+
+  return localStorage.getItem(selectedMarkerKey(mapId));
 }
 
 /* =========================================================
    SHARE STATE FACTORIES
 ========================================================= */
 
-/**
- * VIEW SHARE (read-only)
- * - only camera + filters
- * - NEVER modifies markers
- */
 export function createMapShareState(
   visibleMarkerTypes: Record<MarkerType, boolean>,
   sessionCamera: MapView,
@@ -61,14 +100,10 @@ export function createMapShareState(
   return {
     visibleMarkerTypes,
     sessionCamera,
-    selectedMarkerId
+    selectedMarkerId,
   };
 }
 
-/**
- * FULL SHARE / FILE EXPORT
- * - includes markers + full map state
- */
 export function createMapSaveShareState(
   visibleMarkerTypes: Record<MarkerType, boolean>,
   userMarkers: MarkerData[],
@@ -81,7 +116,7 @@ export function createMapSaveShareState(
     userMarkers,
     selectedMarkerId,
     sessionCamera,
-    userDefaultCamera
+    userDefaultCamera,
   };
 }
 
@@ -175,7 +210,7 @@ export function decodeMapFile(raw: string): MapExportData {
     visibleMarkerTypes: data.visibleMarkerTypes,
     sessionCamera: data.sessionCamera,
     userDefaultCamera: data.userDefaultCamera,
-    selectedMarkerId: data.selectedMarkerId
+    selectedMarkerId: data.selectedMarkerId,
   };
 }
 
@@ -203,6 +238,8 @@ export function downloadMapExport(
   data: MapExportData,
   filename: string
 ) {
+  if (!isBrowser) return;
+
   const baseName = getBaseName(filename);
   const date = getDateStamp();
 
@@ -279,22 +316,4 @@ export function readMapFile(file: File): Promise<MapExportData> {
     reader.onerror = reject;
     reader.readAsText(file);
   });
-}
-
-const selectedMarkerKey = (mapId: string) =>
-  `map-selected-marker-${mapId}`;
-
-export function saveSelectedMarker(
-  markerId: string | null,
-  mapId: string
-) {
-  if (!markerId) {
-    localStorage.removeItem(selectedMarkerKey(mapId));
-  } else {
-    localStorage.setItem(selectedMarkerKey(mapId), markerId);
-  }
-}
-
-export function loadSelectedMarker(mapId: string): string | null {
-  return localStorage.getItem(selectedMarkerKey(mapId));
 }

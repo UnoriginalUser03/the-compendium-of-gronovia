@@ -48,7 +48,6 @@ type ModalAction = {
 
   disabled?: boolean | ((values: FormValues) => boolean);
 
-  /** ✅ NEW (minimal addition) */
   respectsValidation?: boolean;
 
   style?: React.CSSProperties;

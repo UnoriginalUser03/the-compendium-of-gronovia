@@ -50,21 +50,10 @@ export default function Map(props: LeafletMapProps) {
     [props.bounds, props.defaultZoom]
   );
 
-  // =========================================================
-  // USER DEFAULT CAMERA (SINGLE SOURCE)
-  // =========================================================
   const [userDefaultCamera, setUserDefaultCameraState] =
-    useState<MapView | null>(() => loadUserDefaultCamera(mapId));
+    useState<MapView | null>(null);
 
-  // =========================================================
-  // CAMERA STATE (ONLY SOURCE OF TRUTH)
-  // =========================================================
-  const [camera, setCamera] = useState<MapView>(() => {
-    const session = loadSessionCamera(mapId);
-    const userDefault = loadUserDefaultCamera(mapId);
-
-    return session ?? userDefault ?? systemDefaultCamera;
-  });
+  const [camera, setCamera] = useState<MapView>(() => systemDefaultCamera);
 
   const [animateCamera, setAnimateCamera] = useState<MapView | null>(null);
 
@@ -99,9 +88,7 @@ export default function Map(props: LeafletMapProps) {
   const [selectedLineId, setSelectedLineId] = useState<string | null>(null);
   const [linkCopied, setLinkCopied] = useState(false);
   const [defaultViewSaved, setDefaultViewSaved] = useState(false);
-  const [selectedMarkerId, setSelectedMarkerId] = useState<string | null>(() => {
-    return loadSelectedMarker(mapId);
-  });
+  const [selectedMarkerId, setSelectedMarkerId] = useState<string | null>(null);
   const [layersOpen, setLayersOpen] = useState(false);
 
   const [dialog, setDialog] = useState<DialogState>({ mode: "closed" });
@@ -158,11 +145,14 @@ export default function Map(props: LeafletMapProps) {
   useEffect(() => {
     const session = loadSessionCamera(mapId);
     const userDefault = loadUserDefaultCamera(mapId);
+    const selectedMarkerId = loadSelectedMarker(mapId);
 
     const initial = session ?? userDefault ?? systemDefaultCamera;
 
     updateCamera(initial, true, false);
-  }, []);
+    setUserDefaultCameraState(userDefault);
+    setSelectedMarkerId(selectedMarkerId);
+  }, [mapId]);
   // =========================================================
   // URL HANDLING
   // =========================================================
