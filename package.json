@@ -28,6 +28,7 @@
     "leaflet": "^1.9.4",
     "leaflet.fullscreen": "^5.3.1",
     "lucide-react": "^1.7.0",
+    "lz-string": "^1.5.0",
     "node-fetch": "^3.3.2",
     "prism-react-renderer": "^2.3.0",
     "react": "^19.0.0",

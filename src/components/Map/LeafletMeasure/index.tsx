@@ -27,16 +27,16 @@ const LeafletMeasure = forwardRef(function LeafletMeasure(
         onLineSelected,
         onSelectedDistanceChange,
         measureEnabled,
-        onSelectedLineChange
+        setSelectedId,
+        selectedId,
     }: {
         scaleRatio: number;
         onHoverDistanceChange?: (miles: number | null) => void;
         onLineSelected?: (line: CompletedLine | null) => void;
         onSelectedDistanceChange?: (miles: number | null) => void;
         measureEnabled: boolean;
-        onSelectedLineChange?: (id: string | null) => void;
-        selectedId?: string | null;
         setSelectedId?: (id: string | null) => void;
+        selectedId?: string | null;
     },
     ref: React.Ref<{ clear: () => void }>
 ) {
@@ -49,12 +49,9 @@ const LeafletMeasure = forwardRef(function LeafletMeasure(
     const [completed, setCompleted] = useState<CompletedLine[]>([]);
 
     const [hoveredId, setHoveredId] = useState<string | null>(null);
-    const [selectedId, setSelectedId] = useState<string | null>(null);
-
     const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(
         null
     );
-
     // Refs (avoid stale closures)
     const completedRef = useRef(completed);
     const hoveredIdRef = useRef(hoveredId);
@@ -97,6 +94,17 @@ const LeafletMeasure = forwardRef(function LeafletMeasure(
 
     useImperativeHandle(ref, () => ({
         clear: clearAll,
+        removeLine: (id: string) => {
+            setCompleted(prev => prev.filter(line => line.id !== id));
+
+            if (selectedId === id) {
+                setSelectedId?.(null);
+            }
+
+            onHoverDistanceChange?.(null);
+            onLineSelected?.(null);
+            onSelectedDistanceChange?.(null);
+        }
     }));
 
     function clearAll() {
@@ -104,7 +112,7 @@ const LeafletMeasure = forwardRef(function LeafletMeasure(
         setPreviewPoint(null);
         setCompleted([]);
         setHoveredId(null);
-        setSelectedId(null);
+        setSelectedId?.(null);
         setTooltipPos(null);
         onHoverDistanceChange?.(null);
         onLineSelected?.(null);
@@ -161,7 +169,7 @@ const LeafletMeasure = forwardRef(function LeafletMeasure(
 
     const handleLineClick = (id: string) => (e: LeafletMouseEvent) => {
         L.DomEvent.stopPropagation(e);
-        setSelectedId(id);
+        setSelectedId?.(id);
 
         const line = completedRef.current.find((c) => c.id === id) || null;
         onLineSelected?.(line);
@@ -171,7 +179,7 @@ const LeafletMeasure = forwardRef(function LeafletMeasure(
         click(e) {
             // Deselect if not drawing
             if (currentPoints.length === 0 && selectedId !== null) {
-                setSelectedId(null);
+                setSelectedId?.(null);
                 onLineSelected?.(null);
                 return;
             }
@@ -194,7 +202,7 @@ const LeafletMeasure = forwardRef(function LeafletMeasure(
                         distance: dist,
                     },
                 ]);
-                setSelectedId(id)
+                setSelectedId?.(id)
             }
 
             setCurrentPoints([]);

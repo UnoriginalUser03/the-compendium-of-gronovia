@@ -1,28 +1,41 @@
+/* =========================
+   BACKDROP
+========================= */
 .backdrop {
     position: absolute;
     inset: 0;
     background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(3px);
     z-index: 99998;
-    backdrop-filter: blur(2px);
 }
 
+/* =========================
+   MODAL
+========================= */
 .modal {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
 
-    z-index: 100000;
+    min-width: 30%;
+    max-width: 75%;
 
-    min-width: 280px;
-    max-width: 360px;
-    animation: popIn 120ms ease-out;
+    padding: 14px;
+    border-radius: var(--ifm-global-radius);
+
+    background: var(--ifm-background-surface-color);
+    border: 1px solid var(--ifm-color-emphasis-200);
+    box-shadow: var(--ifm-global-shadow-lw);
+
+    animation: popIn 150ms ease-out;
+    z-index: 100000;
 }
 
-
+/* POP ANIMATION */
 @keyframes popIn {
     from {
-        transform: translate(-50%, -48%) scale(0.55);
+        transform: translate(-50%, -48%) scale(0.6);
         opacity: 0;
     }
 
@@ -32,46 +45,141 @@
     }
 }
 
-/* TITLE */
+/* =========================
+   TITLE
+========================= */
 .title {
-    font-size: 1rem;
+    font-size: 1.3rem;
+    text-align: center;
     font-weight: 600;
-    margin-bottom: 0.75rem;
     color: var(--ifm-font-color-base);
+
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+
+    border-bottom: 1px solid var(--ifm-color-emphasis-200);
 }
 
-/* FIELD WRAPPER */
+/* =========================
+   FIELDS
+========================= */
 .field {
-    margin-bottom: 0.75rem;
+    margin-bottom: 10px;
 }
 
-/* ACTION ROW */
+/* =========================
+   ACTIONS
+========================= */
 .actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-    margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 12px;
 }
 
+/* DEFAULT: ROW */
+.actions[data-layout="row"] {
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+/* COLUMN MODE (NEW) */
+.actions[data-layout="column"] {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.actions[data-layout="column"] :global(button) {
+  width: 100%;
+  justify-content: center;
+}
+
+/* =========================
+   INPUTS (Docusaurus native)
+========================= */
 :global(.input),
 :global(.select) {
     width: 100%;
     font-family: var(--ifm-font-family-base);
     font-size: var(--ifm-font-size-base);
-}
 
-:global(.input),
-:global(.select) {
     border: 1px solid var(--ifm-color-emphasis-300);
     border-radius: var(--ifm-global-radius);
-    background-color: var(--ifm-background-color);
+
+    background: var(--ifm-background-color);
     color: var(--ifm-font-color-base);
-    padding: 0.4rem 0.6rem;
+
+    padding: 0.45rem 0.6rem;
 }
 
 :global(.input):focus,
-:global(.select):focus {
+:global(.select):focus,
+.checkbox:focus,
+.checkboxRow:focus {
     outline: none;
     border-color: var(--ifm-color-primary);
     box-shadow: 0 0 0 2px var(--ifm-color-primary-lightest);
+}
+
+:global(.button) {
+    font-family: var(--ifm-font-family-base);
+}
+
+/* =========================
+   CHECKBOX ROW (POLISHED)
+========================= */
+.checkboxRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    padding: 10px 12px;
+    border-radius: var(--ifm-global-radius);
+
+    background: var(--ifm-background-color);
+    border: 1px solid var(--ifm-color-emphasis-200);
+
+    cursor: pointer;
+    user-select: none;
+
+    transition: all 0.15s ease;
+}
+
+.checkboxRow:hover {
+    border-color: var(--ifm-color-primary);
+    background: var(--ifm-color-emphasis-100);
+    transform: translateY(-1px);
+}
+
+.checkboxRow:active {
+    transform: translateY(0px) scale(0.995);
+}
+
+/* LABEL */
+.checkboxLabel {
+    font-size: var(--ifm-font-size-base);
+    color: var(--ifm-font-color-base);
+}
+
+/* CHECKBOX */
+.checkbox {
+    width: 18px;
+    height: 18px;
+
+    accent-color: var(--ifm-color-primary);
+    pointer-events: none;
+    flex-shrink: 0;
+}
+
+.buttonIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ensures icon-only buttons still look balanced */
+.button:has(.buttonIcon):not(:has(span:last-child)) {
+  padding-left: 10px;
+  padding-right: 10px;
 }

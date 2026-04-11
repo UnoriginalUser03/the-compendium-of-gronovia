@@ -1,12 +1,14 @@
 
-+ Stop adding page to URL in handouts when there is not more than 1 page.
-+ Upcoming Events page with discord api and github actions 
+LONG TERM:
 + Disable fullscreen map on mobile
 + Add search 
 + Add graph
-+ Add click stop propogation on lines
 + Add disable button to clouds
-
 + Fix mobile fullscreen
-+ Emma feature 
-+ Layer filtering on map 
++ Possibly add terrain difficulty with overlay? 
++ Stop adding page to URL in handouts when there is not more than 1 page.
+
+IMMEDIATE: 
++ Add default view setter and saving camera position and zoom between sessions. 
++ Allow links to be attached to user markers? 
+

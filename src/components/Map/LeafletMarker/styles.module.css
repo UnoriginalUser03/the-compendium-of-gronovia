@@ -30,3 +30,38 @@
 
     color: var(--ifm-font-color-base);
 }
+
+.markerTitleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.markerTitle {
+  font-weight: 600;
+  font-size: 14px;
+  text-align: left;
+  flex: 1;
+}
+
+.markerEditBtn {
+  background: none;
+  border: none;
+  padding: 2px;
+  cursor: pointer;
+  color: var(--ifm-color-primary);
+  opacity: 0.8;
+}
+
+.marker-edit-btn:hover {
+  opacity: 1;
+}
+
+.marker-note {
+  font-size: 13px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  color: var(--ifm-font-color-secondary);
+}

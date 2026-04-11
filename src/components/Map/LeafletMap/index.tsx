@@ -1,29 +1,25 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import L from "leaflet";
-import { MapContainer, ImageOverlay, useMap } from "react-leaflet";
+import { MapContainer, ImageOverlay } from "react-leaflet";
+
+import useBaseUrl from "@docusaurus/useBaseUrl";
+
 import LeafletMarker from "../LeafletMarker";
 import LeafletDevCoords from "../LeafletDevCoords";
 import LeafletFullscreen from "../LeafletFullscreen";
 import LeafletRecenter from "../LeafletRecenter";
-import LeafletMeasureControls from "../LeafletMeasureControls";
 import LeafletDistancePanel from "../LeafletDistancePanel";
 import LeafletMeasure from "../LeafletMeasure";
 import LeafletUserMarkers from "../LeafletUserMarkers";
-import LeafletModal from "../LeafletModal";
-import { LeafletMapProps, MarkerTypeGroups, MarkerTypes } from "../LeafletTypes";
-import useBaseUrl from "@docusaurus/useBaseUrl";
 import LeafletInteractionController from "../LeafletInteractionController";
+import LeafletLayersPanel from "../LeafletLayersPanel";
+import LeafletMapControls from "../LeafletMapControls";
+import LeafletViewTracker from "../LeafletViewController";
+import LeafletMarkerEditorModal from "../LeafletMarkerEditorModal";
+import LeafletShareModal from "../LeafletShareModal";
+import LeafletLoadModal from "../LeafletLoadModal";
 
-type MarkerDialogState =
-  | { mode: "closed" }
-  | { mode: "create"; position: [number, number] }
-  | { mode: "delete"; id: string };
-
-type ExtendedProps = LeafletMapProps & {
-  onStartCreateMarker?: (position: [number, number]) => void;
-  dialog: MarkerDialogState;
-  setDialog: React.Dispatch<React.SetStateAction<MarkerDialogState>>;
-};
+import { LeafletMapProps } from "../LeafletTypes";
 
 export default function LeafletMap({
   image,
@@ -31,30 +27,68 @@ export default function LeafletMap({
   markers = [],
   userMarkers = [],
   scaleRatio = 1,
+
   measureEnabled = false,
-  setUserMarkers,
-  handleDeleteMarker,
   setMeasureEnabled,
+
+  handleDeleteMarker,
+
+  setUserMarkers,
+
   displayDistance = null,
   travelInfo = [],
+
   onHoverDistanceChange,
   onSelectedDistanceChange,
+
   onStartCreateMarker,
+
   dialog,
   setDialog,
-}: ExtendedProps) {
-  const center: [number, number] = [
-    (bounds[0][0] + bounds[1][0]) / 2,
-    (bounds[0][1] + bounds[1][1]) / 2,
-  ];
-  const measureRef = useRef<{ clear: () => void }>(null);
+
+  selectedLineId,
+  setSelectedLineId,
+
+  visibleMarkerTypes,
+  setVisibleMarkerTypes,
+
+  layersOpen,
+  setLayersOpen,
+
+  onSave,
+  onLoad,
+  onShare,
+
+  camera,
+  setCamera,
+
+  animateCamera,
+  setAnimateCamera,
+
+  systemDefaultCamera,
+
+  userDefaultCamera,
+
+  hasUserDefault,
+
+  onRecenter,
+  onSaveUserDefaultCamera,
+  onClearUserDefaultCamera,
+}: LeafletMapProps) {
+
+  const measureRef = useRef<{
+    clear: () => void;
+    removeLine: (id: string) => void;
+  }>(null);
+
+  const activeCamera = camera ?? systemDefaultCamera;
 
   return (
     <MapContainer
       crs={L.CRS.Simple}
       bounds={bounds}
-      center={center}
-      zoom={-3}
+      center={activeCamera.center}
+      zoom={activeCamera.zoom}
       maxZoom={3}
       minZoom={-3}
       style={{
@@ -63,36 +97,100 @@ export default function LeafletMap({
         position: "relative",
       }}
     >
+      {/* =====================================================
+          IMAGE OVERLAY
+      ===================================================== */}
       <ImageOverlay url={useBaseUrl(image)} bounds={bounds} />
 
-      {[...markers, ...userMarkers].map((marker) => (
-        <LeafletMarker
-          key={`${marker.id}-${!measureEnabled}`}
-          marker={marker}
-          interactable={!measureEnabled}   // visual + interaction lock
-          onRequestDelete={handleDeleteMarker}
-        />
-      ))}
+      {/* =====================================================
+          MARKERS
+      ===================================================== */}
+      {[...markers, ...userMarkers]
+        .filter((m) => !m.type || visibleMarkerTypes[m.type])
+        .map((marker) => (
+          <LeafletMarker
+            key={marker.id}
+            marker={marker}
+            interactable={!measureEnabled}
+            onRequestDelete={handleDeleteMarker}
+            onRequestEdit={(m) => setDialog({ mode: "edit", marker: m })}
+            onRequestMove={(marker, pos) => {
+              setUserMarkers((prev) =>
+                prev.map((item) =>
+                  item.id === marker.id
+                    ? { ...item, position: pos }
+                    : item
+                )
+              );
+            }}
+            onToggleLock={(marker) => {
+              setUserMarkers((prev) =>
+                prev.map((item) =>
+                  item.id === marker.id
+                    ? { ...item, locked: !item.locked }
+                    : item
+                )
+              );
+            }}
+          />
+        ))}
 
+      {/* =====================================================
+          USER MARKER CREATION
+      ===================================================== */}
       <LeafletUserMarkers
         measureEnabled={measureEnabled}
-        dialogOpen={dialog.mode !== "closed"} // 👈 add this
+        dialogOpen={dialog.mode !== "closed"}
         onStartCreateMarker={onStartCreateMarker}
       />
 
-      <LeafletMeasureControls
+      {/* =====================================================
+          CONTROLS
+      ===================================================== */}
+      <LeafletMapControls
         measureEnabled={measureEnabled}
         setMeasureEnabled={setMeasureEnabled!}
-        onClear={() => measureRef.current?.clear()}
+        selectedLineId={selectedLineId}
+        onClearSelected={(id) => {
+          if (id) measureRef.current?.removeLine(id);
+          else measureRef.current?.clear();
+        }}
+        layersOpen={layersOpen}
+        setLayersOpen={setLayersOpen}
+        onSave={onSave}
+        onLoadRequest={onLoad}
+        onShareRequest={onShare}
       />
 
-      <LeafletInteractionController locked={dialog.mode !== "closed"} />
+      {/* =====================================================
+          LAYERS PANEL
+      ===================================================== */}
+      <LeafletLayersPanel
+        open={layersOpen}
+        setOpen={setLayersOpen}
+        visibleMarkerTypes={visibleMarkerTypes}
+        setVisibleMarkerTypes={setVisibleMarkerTypes}
+        hidden={measureEnabled}
+      />
 
+      {/* =====================================================
+          INTERACTION LOCK
+      ===================================================== */}
+      <LeafletInteractionController
+        locked={dialog.mode !== "closed"}
+      />
+
+      {/* =====================================================
+          DISTANCE PANEL
+      ===================================================== */}
       <LeafletDistancePanel
         displayDistance={displayDistance}
         travelInfo={travelInfo}
       />
 
+      {/* =====================================================
+          MEASURE TOOL
+      ===================================================== */}
       {measureEnabled && (
         <LeafletMeasure
           ref={measureRef}
@@ -100,75 +198,64 @@ export default function LeafletMap({
           measureEnabled={measureEnabled}
           onHoverDistanceChange={onHoverDistanceChange}
           onSelectedDistanceChange={onSelectedDistanceChange}
+          selectedId={selectedLineId}
+          setSelectedId={setSelectedLineId}
         />
       )}
 
+      {/* =====================================================
+          CAMERA TRACKER
+      ===================================================== */}
+      <LeafletViewTracker
+        animateCamera={animateCamera}
+        setCamera={setCamera}
+        onAnimationComplete={() => setAnimateCamera(null)}
+      />
+
+      {/* =====================================================
+          DEV + UI UTILITIES
+      ===================================================== */}
       <LeafletDevCoords
         measureEnabled={measureEnabled}
         devMode={process.env.NODE_ENV === "development"}
       />
 
       <LeafletFullscreen />
-      <LeafletRecenter center={center} zoom={-3} />
 
-      {/* ✅ MODAL INSIDE MAP (fullscreen-safe) */}
-      {dialog.mode !== "closed" && (
-        <LeafletModal
-          title={
-            dialog.mode === "create"
-              ? "Create Marker"
-              : "Delete Marker"
-          }
-          fields={
-            dialog.mode === "create"
-              ? [
-                {
-                  name: "title",
-                  placeholder: "Marker name",
-                  required: true,
-                },
-                {
-                  name: "type",
-                  type: "select",
-                  required: true,
-                  defaultValue: "poi",
-                  options: Object.entries(MarkerTypeGroups.player).map(
-                    ([key, v]) => ({
-                      value: key,
-                      label: v.label,
-                    })
-                  ),
-                },
-              ]
-              : []
-          }
-          confirmLabel={dialog.mode === "delete" ? "Delete" : "Create"}
-          cancelLabel="Cancel"
-          onCancel={() => setDialog({ mode: "closed" })}
-          onConfirm={(values) => {
-            if (dialog.mode === "create") {
-              setUserMarkers((prev) => [
-                ...prev,
-                {
-                  id: crypto.randomUUID(),
-                  position: dialog.position,
-                  title: values.title,
-                  type: values.type as any,
-                  isUser: true,
-                },
-              ]);
-            }
+      <LeafletRecenter
+        hasUserDefault={hasUserDefault}
+        onRecenter={onRecenter}
+        onSaveDefault={onSaveUserDefaultCamera}
+        onClearDefault={onClearUserDefaultCamera}
+      />
 
-            if (dialog.mode === "delete") {
-              setUserMarkers((prev) =>
-                prev.filter((m) => m.id !== dialog.id)
-              );
-            }
+      {/* =====================================================
+          MODALS
+      ===================================================== */}
+      <LeafletMarkerEditorModal
+        dialog={dialog}
+        setDialog={setDialog}
+        setUserMarkers={setUserMarkers}
+      />
 
-            setDialog({ mode: "closed" });
-          }}
-        />
-      )}
+      <LeafletShareModal
+        dialog={dialog}
+        setDialog={setDialog}
+        visibleMarkerTypes={visibleMarkerTypes}
+        userMarkers={userMarkers}
+        sessionCamera={camera ?? systemDefaultCamera}
+        userDefaultCamera={userDefaultCamera ?? systemDefaultCamera}
+      />
+
+      <LeafletLoadModal
+        dialog={dialog}
+        setDialog={setDialog}
+        setUserMarkers={setUserMarkers}
+        setVisibleMarkerTypes={setVisibleMarkerTypes}
+        setUserDefaultCamera={onSaveUserDefaultCamera}
+        setCamera={setCamera}
+        setAnimateCamera={setAnimateCamera}
+      />
     </MapContainer>
   );
 }
