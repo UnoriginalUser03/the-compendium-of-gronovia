@@ -9,7 +9,7 @@ import { Edit2, Lock, Unlock } from "lucide-react";
 
 export default function LeafletMarker({
   marker,
-  interactable = true,
+  interactable,
   onRequestEdit,
   onRequestMove,
   onRequestMarkerMenu,
@@ -83,7 +83,7 @@ export default function LeafletMarker({
       ref={markerRef}
       icon={icon}
       interactive={interactable}
-      draggable={marker.isUser && !marker.locked}
+      draggable={marker.isUser && !marker.locked && interactable}
       eventHandlers={{
         popupopen: (e) => {
           L.DomEvent.stopPropagation(e);

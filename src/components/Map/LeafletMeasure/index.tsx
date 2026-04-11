@@ -70,6 +70,11 @@ const LeafletMeasure = forwardRef(function LeafletMeasure(
     }, [measureEnabled]);
 
     useEffect(() => {
+        if (!map) return;
+        map.closePopup();
+    }, [measureEnabled, map]);
+
+    useEffect(() => {
         if (!measureEnabled) {
             map.doubleClickZoom.enable();
             return;
