@@ -124,18 +124,6 @@ const LeafletContextMenu = forwardRef<
         latlng: [e.latlng.lat, e.latlng.lng],
       });
     },
-
-    movestart() {
-      scheduleClose(100);
-    },
-
-    zoomstart() {
-      scheduleClose(100);
-    },
-
-    preclick() {
-      scheduleClose(100);
-    },
   });
 
   // =====================================================
