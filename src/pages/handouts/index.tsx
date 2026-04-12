@@ -43,7 +43,7 @@ export default function HandoutsGallery() {
   const [tags, setTags] = useState<string[]>(params.tag ?? []);
   const [page, setPage] = useState<number>(Number(params.page ?? 1));
 
-  const pageSize = 20;
+  const pageSize = 2;
 
   // --- Helper to update URL dynamically ---
   const updateUrl = (updates: Partial<UrlParams>, mode: "push" | "replace" = "replace") => {
@@ -94,6 +94,13 @@ export default function HandoutsGallery() {
   const paginated = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
   const filteredIds = filtered.map(h => h.id);
 
+  const shouldPersistPage = totalPages > 1;
+
+  const normalizePageParam = (p: number) => {
+    if (!shouldPersistPage || p <= 1) return undefined;
+    return String(p);
+  };
+
   const slides = useMemo(() => {
     return filtered.map(h => ({
       src: h.url,
@@ -143,20 +150,20 @@ export default function HandoutsGallery() {
           onSearchChange={v => {
             setSearch(v);
             setPage(1);
-            updateUrl({ q: v, page: "1" });
+            updateUrl({ q: v, page: undefined });
           }}
           campaign={campaign}
           onCampaignChange={v => {
             setCampaign(v);
             setPage(1);
-            updateUrl({ campaign: v, page: "1" });
+            updateUrl({ campaign: v, page: undefined });
           }}
           campaigns={campaigns}
           session={session}
           onSessionChange={v => {
             setSession(v);
             setPage(1);
-            updateUrl({ session: v, page: "1" });
+            updateUrl({ session: v, page: undefined });
           }}
           sessions={sessions}
           tags={tags}
@@ -164,7 +171,7 @@ export default function HandoutsGallery() {
             const newTags = tags.includes(tag) ? tags.filter(t => t !== tag) : [...tags, tag];
             setTags(newTags);
             setPage(1);
-            updateUrl({ tag: newTags, page: "1" });
+            updateUrl({ tag: newTags, page: undefined });
           }}
           allTags={allTags}
           onReset={() => {
@@ -173,7 +180,13 @@ export default function HandoutsGallery() {
             setSession("all");
             setTags([]);
             setPage(1);
-            updateUrl({ q: "", campaign: "all", session: "all", tag: [], page: "1" });
+            updateUrl({
+              q: "",
+              campaign: "all",
+              session: "all",
+              tag: [],
+              page: undefined,
+            });
           }}
         />
 
@@ -196,7 +209,7 @@ export default function HandoutsGallery() {
               onClick={() => {
                 const prev = Math.max(1, currentPage - 1);
                 setPage(prev);
-                updateUrl({ page: String(prev) }, "push");
+                updateUrl({ page: normalizePageParam(prev) }, "push");
               }}
               disabled={currentPage === 1}
               className={`${styles.pageButton} ${styles.prev}`}
@@ -258,7 +271,7 @@ export default function HandoutsGallery() {
                     ].join(" ")}
                     onClick={() => {
                       setPage(Number(p));
-                      updateUrl({ page: String(p) }, "push");
+                      updateUrl({ page: normalizePageParam(Number(p)) }, "push");
                     }}
                   >
                     {p}
@@ -272,7 +285,7 @@ export default function HandoutsGallery() {
               onClick={() => {
                 const next = Math.min(totalPages, currentPage + 1);
                 setPage(next);
-                updateUrl({ page: String(next) }, "push");
+                updateUrl({ page: normalizePageParam(next) }, "push");
               }}
               disabled={currentPage === totalPages}
               className={`${styles.pageButton} ${styles.next}`}

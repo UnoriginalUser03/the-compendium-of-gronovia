@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useMap } from "react-leaflet";
 import L from "leaflet";
-import { CircleDot, Save, RotateCcw, Check } from "lucide-react";
+import { CircleDot, Save, Check, Undo2 } from "lucide-react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 type Props = {
@@ -10,6 +10,7 @@ type Props = {
   onClearDefault: () => void;
   hasUserDefault: boolean;
   defaultViewSaved: boolean;
+  isRecentered: boolean;
 };
 
 export default function LeafletRecenter({
@@ -18,6 +19,7 @@ export default function LeafletRecenter({
   onClearDefault,
   hasUserDefault,
   defaultViewSaved,
+  isRecentered,
 }: Props) {
   const map = useMap();
 
@@ -28,40 +30,44 @@ export default function LeafletRecenter({
     const container = zoomControl.getContainer();
     if (!container) return;
 
-    // buttons
-    const btnRecenter = L.DomUtil.create("a", "leaflet-btn recenter", container);
-    const btnSave = L.DomUtil.create("a", "leaflet-btn save", container);
-
     let btnReset: HTMLAnchorElement | null = null;
+    let btnRecenter: HTMLAnchorElement | null = null;
+    let btnSave: HTMLAnchorElement | null = null;
 
-    btnRecenter.innerHTML = renderToStaticMarkup(
-      <span><CircleDot size={18} /></span>
-    );
-    btnSave.innerHTML = renderToStaticMarkup(
-      <span>{defaultViewSaved ? <Check size={18} color={"var(--ifm-color-success)"} /> : <Save size={18} />}</span>
-    );
+    // buttons
+    if (!isRecentered) {
+      btnRecenter = L.DomUtil.create("a", "leaflet-btn recenter", container);
+      btnSave = L.DomUtil.create("a", "leaflet-btn save", container);
 
-    btnRecenter.title = "Recenter";
-    btnSave.title = "Save default view";
+      btnRecenter.innerHTML = renderToStaticMarkup(
+        <span><CircleDot size={18} /></span>
+      );
+      btnSave.innerHTML = renderToStaticMarkup(
+        <span>{defaultViewSaved ? <Check size={18} color={"var(--ifm-color-success)"} /> : <Save size={18} />}</span>
+      );
 
-    L.DomEvent.disableClickPropagation(btnRecenter);
-    L.DomEvent.disableClickPropagation(btnSave);
+      btnRecenter.title = "Recenter";
+      btnSave.title = "Save default view";
 
-    L.DomEvent.on(btnRecenter, "click", (e) => {
-      L.DomEvent.preventDefault(e);
-      onRecenter();
-    });
+      L.DomEvent.disableClickPropagation(btnRecenter);
+      L.DomEvent.disableClickPropagation(btnSave);
 
-    L.DomEvent.on(btnSave, "click", (e) => {
-      L.DomEvent.preventDefault(e);
-      onSaveDefault();
-    });
+      L.DomEvent.on(btnRecenter, "click", (e) => {
+        L.DomEvent.preventDefault(e);
+        onRecenter();
+      });
 
-    if (hasUserDefault) {
+      L.DomEvent.on(btnSave, "click", (e) => {
+        L.DomEvent.preventDefault(e);
+        onSaveDefault();
+      });
+    }
+
+    if (hasUserDefault && isRecentered) {
       btnReset = L.DomUtil.create("a", "leaflet-btn reset", container);
 
       btnReset.innerHTML = renderToStaticMarkup(
-        <span><RotateCcw size={18} /></span>
+        <span><Undo2 size={18} /></span>
       );
 
       btnReset.title = "Reset to system default";
@@ -74,12 +80,13 @@ export default function LeafletRecenter({
       });
     }
 
+
     return () => {
-      btnRecenter.remove();
-      btnSave.remove();
+      btnRecenter?.remove();
+      btnSave?.remove();
       btnReset?.remove();
     };
-  }, [map, onRecenter, onSaveDefault, onClearDefault, hasUserDefault, defaultViewSaved]);
+  }, [map, onRecenter, onSaveDefault, onClearDefault, hasUserDefault, defaultViewSaved, isRecentered]);
 
   return null;
 }

@@ -75,6 +75,7 @@ export default function LeafletMarkerEditorModal({
                                 if (!position) return;
 
                                 const typedType = values.type as MarkerType;
+                                const now = Date.now();
 
                                 setUserMarkers((prev) => [
                                     ...prev,
@@ -86,6 +87,8 @@ export default function LeafletMarkerEditorModal({
                                         note: values.note ? String(values.note) : undefined,
                                         isUser: true,
                                         locked: Boolean(values.locked),
+                                        createdAt: now,
+                                        updatedAt: now,
                                     },
                                 ]);
                             },
@@ -104,6 +107,7 @@ export default function LeafletMarkerEditorModal({
                                 if (!marker) return;
 
                                 const typedType = values.type as MarkerType;
+                                const now = Date.now();
 
                                 setUserMarkers((prev) =>
                                     prev.map((m) =>
@@ -116,6 +120,7 @@ export default function LeafletMarkerEditorModal({
                                                     ? String(values.note)
                                                     : undefined,
                                                 locked: Boolean(values.locked),
+                                                updatedAt: now,
                                             }
                                             : m
                                     )

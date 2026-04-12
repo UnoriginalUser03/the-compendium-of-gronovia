@@ -169,6 +169,7 @@ export function decodeMapSaveState(
 /* =========================================================
    FILE EXPORT FORMAT
 ========================================================= */
+const fileVersion = 2;
 
 export function createMapExport(
   userMarkers: MarkerData[],
@@ -178,7 +179,7 @@ export function createMapExport(
   userDefaultCamera?: MapView
 ): MapExportData {
   return {
-    version: 2,
+    version: fileVersion,
     userMarkers,
     visibleMarkerTypes,
     selectedMarkerId,
@@ -205,7 +206,7 @@ export function decodeMapFile(raw: string): MapExportData {
   }
 
   return {
-    version: data.version ?? 1,
+    version: data.version ?? fileVersion,
     userMarkers: data.userMarkers,
     visibleMarkerTypes: data.visibleMarkerTypes,
     sessionCamera: data.sessionCamera,
@@ -267,16 +268,38 @@ export function mergeMarkers(
   existing: MarkerData[],
   incoming: MarkerData[]
 ): MarkerData[] {
-  const ids = new Set(existing.map((m) => m.id));
+  const existingMap = new Map(existing.map(m => [m.id, m]));
 
-  return [
-    ...existing,
-    ...incoming.map((m) =>
-      ids.has(m.id)
-        ? { ...m, id: crypto.randomUUID() }
-        : m
-    ),
-  ];
+  const merged = [...existing];
+
+  for (const incomingMarker of incoming) {
+    const current = existingMap.get(incomingMarker.id);
+
+    if (!current) {
+      merged.push(incomingMarker);
+      continue;
+    }
+
+    const currentTime =
+      current.updatedAt ?? current.createdAt ?? 0;
+
+    const incomingTime =
+      incomingMarker.updatedAt ?? incomingMarker.createdAt ?? 0;
+
+    const winner =
+      incomingTime > currentTime ? incomingMarker : current;
+
+    const updated: MarkerData = {
+      ...winner,
+      id: current.id,
+      createdAt: current.createdAt ?? incomingMarker.createdAt,
+    };
+
+    const index = merged.findIndex(m => m.id === current.id);
+    merged[index] = updated;
+  }
+
+  return merged;
 }
 
 /* =========================================================
@@ -301,7 +324,7 @@ export function readMapFile(file: File): Promise<MapExportData> {
         }
 
         resolve({
-          version: data.version ?? 1,
+          version: data.version ?? fileVersion,
           userMarkers: data.userMarkers,
           visibleMarkerTypes: data.visibleMarkerTypes,
           sessionCamera: data.sessionCamera,

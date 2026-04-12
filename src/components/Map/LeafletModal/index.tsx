@@ -64,6 +64,7 @@ type ActionsMode = "default" | "merge" | "replace";
 
 export default function LeafletModal({
   title,
+  description,
   fields = [],
   customFields,
   actions,
@@ -75,6 +76,7 @@ export default function LeafletModal({
   onCancel,
 }: {
   title: string;
+  description?: React.ReactElement;
   fields?: Field[];
   customFields?: React.ReactNode;
 
@@ -101,7 +103,7 @@ export default function LeafletModal({
       })
     ) as FormValues
   );
-  
+
 
   useEffect(() => {
     setContainer(map.getContainer());
@@ -190,7 +192,11 @@ export default function LeafletModal({
 
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <h2 className={styles.title}>{title}</h2>
-
+        {description && (
+          <p style={{ whiteSpace: "pre-wrap" }}>
+            {description}
+          </p>
+        )}        
         {/* FIELDS */}
         {customFields ?? (
           <>

@@ -104,6 +104,8 @@ export type MarkerData = {
     isUser?: boolean;
     note?: string;
     locked?: boolean;
+    createdAt?: number;
+    updatedAt?: number;
 };
 
 /* =========================================================
@@ -181,8 +183,11 @@ export type DialogState =
     // optional generic share modal
     | {
         mode: "share";
+    }
+    | {
+        mode: "load-error",
+        error?: string
     };
-
 /* =========================================================
    FORM FIELDS (UNCHANGED)
 ========================================================= */
@@ -286,6 +291,10 @@ export type LeafletMapProps = {
     onLinkCopied: () => void;
     linkCopied: boolean;
     defaultViewSaved: boolean;
+
+
+    isAtDefaultView: boolean;
+    setIsAtDefaultView: (v: boolean) => void;
 };
 
 export type LeafletContextMenuHandle = {

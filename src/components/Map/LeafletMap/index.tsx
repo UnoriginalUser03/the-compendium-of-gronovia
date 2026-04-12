@@ -21,6 +21,7 @@ import LeafletLoadModal from "../LeafletLoadModal";
 
 import { LeafletMapProps } from "../LeafletTypes";
 import LeafletContextMenu from "../LeafletContextMenu";
+import LeafletLoadErrorModal from "../LeafletLoadErrorModal";
 
 export default function LeafletMap({
   image,
@@ -87,7 +88,10 @@ export default function LeafletMap({
 
   onLinkCopied,
   linkCopied,
-  defaultViewSaved
+  defaultViewSaved,
+  
+  setIsAtDefaultView,
+  isAtDefaultView
 }: LeafletMapProps) {
 
   const measureRef = useRef<{
@@ -239,6 +243,8 @@ export default function LeafletMap({
         animateCamera={animateCamera}
         setCamera={setCamera}
         onAnimationComplete={() => setAnimateCamera(null)}
+        defaultView={activeCamera}
+        setIsAtDefaultView={setIsAtDefaultView}
       />
 
       {/* =====================================================
@@ -257,6 +263,7 @@ export default function LeafletMap({
         onSaveDefault={onSaveUserDefaultCamera}
         onClearDefault={onClearUserDefaultCamera}
         defaultViewSaved={defaultViewSaved}
+        isRecentered={isAtDefaultView}
       />
 
       {/* =====================================================
@@ -288,6 +295,11 @@ export default function LeafletMap({
         setCamera={setCamera}
         setAnimateCamera={setAnimateCamera}
         setSelectedMarker={setSelectedMarkerId}
+      />
+
+      <LeafletLoadErrorModal
+        dialog={dialog}
+        setDialog={setDialog}
       />
     </MapContainer>
   );

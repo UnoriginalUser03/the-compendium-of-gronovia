@@ -4,6 +4,7 @@ import React, {
   useImperativeHandle,
   useRef,
   useEffect,
+  useCallback,
 } from "react";
 
 import { useMapEvents } from "react-leaflet";
@@ -18,17 +19,17 @@ import styles from "./styles.module.css";
 
 type ContextTarget =
   | {
-    type: "map";
-    x: number;
-    y: number;
-    latlng: [number, number];
-  }
+      type: "map";
+      x: number;
+      y: number;
+      latlng: [number, number];
+    }
   | {
-    type: "marker";
-    x: number;
-    y: number;
-    marker: MarkerData;
-  }
+      type: "marker";
+      x: number;
+      y: number;
+      marker: MarkerData;
+    }
   | null;
 
 type Props = {
@@ -41,40 +42,64 @@ type Props = {
   onUnlockAll?: () => void;
   lockState?: LockState;
 };
+
 const LeafletContextMenu = forwardRef<
   LeafletContextMenuHandle,
   Props
 >(function LeafletContextMenu(
-  { onCreateMarker, onEditMarker, onDeleteMarker, onToggleLock, measureEnabled, onLockAll, onUnlockAll, lockState },
+  {
+    onCreateMarker,
+    onEditMarker,
+    onDeleteMarker,
+    onToggleLock,
+    onLockAll,
+    onUnlockAll,
+    lockState,
+    measureEnabled,
+  },
   ref
 ) {
-  if (measureEnabled) return;
+  // ✅ IMPORTANT: do not render anything when measure mode is active
+  if (measureEnabled) return null;
+
+  const menuRef = useRef<HTMLDivElement | null>(null);
   const [menu, setMenu] = useState<ContextTarget>(null);
 
   const closeTimer = useRef<number | null>(null);
   const isHovering = useRef(false);
 
-  const clearCloseTimer = () => {
+  // =====================================================
+  // CLOSE HANDLING
+  // =====================================================
+
+  const clearCloseTimer = useCallback(() => {
     if (closeTimer.current) {
       window.clearTimeout(closeTimer.current);
       closeTimer.current = null;
     }
-  };
+  }, []);
 
-  const scheduleClose = (delay = 200) => {
-    clearCloseTimer();
-
-    closeTimer.current = window.setTimeout(() => {
-      if (!isHovering.current) {
-        setMenu(null);
-      }
-    }, delay);
-  };
-
-  const close = () => {
+  const close = useCallback(() => {
     clearCloseTimer();
     setMenu(null);
-  };
+  }, [clearCloseTimer]);
+
+  const scheduleClose = useCallback(
+    (delay = 200) => {
+      clearCloseTimer();
+
+      closeTimer.current = window.setTimeout(() => {
+        if (!isHovering.current) {
+          setMenu(null);
+        }
+      }, delay);
+    },
+    [clearCloseTimer]
+  );
+
+  // =====================================================
+  // IMPERATIVE API
+  // =====================================================
 
   useImperativeHandle(ref, () => ({
     openMapMenu: ({ x, y, latlng }) => {
@@ -86,6 +111,10 @@ const LeafletContextMenu = forwardRef<
     close,
   }));
 
+  // =====================================================
+  // LEAFLET EVENTS
+  // =====================================================
+
   useMapEvents({
     contextmenu(e) {
       setMenu({
@@ -95,16 +124,23 @@ const LeafletContextMenu = forwardRef<
         latlng: [e.latlng.lat, e.latlng.lng],
       });
     },
-    dragstart() {
+
+    movestart() {
       scheduleClose(100);
     },
+
     zoomstart() {
       scheduleClose(100);
     },
-    click() {
-      scheduleClose(150);
+
+    preclick() {
+      scheduleClose(100);
     },
   });
+
+  // =====================================================
+  // KEYBOARD ESC CLOSE
+  // =====================================================
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -113,7 +149,38 @@ const LeafletContextMenu = forwardRef<
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
+  }, [close]);
+
+  // =====================================================
+  // OUTSIDE CLICK (MOBILE + DESKTOP FIX)
+  // =====================================================
+
+  useEffect(() => {
+    if (!menu) return;
+
+    const handlePointerDown = (e: PointerEvent) => {
+      const target = e.target as Node;
+
+      if (menuRef.current && !menuRef.current.contains(target)) {
+        close();
+      }
+    };
+
+    // capture phase = more reliable with Leaflet/map layers
+    document.addEventListener("pointerdown", handlePointerDown, true);
+
+    return () => {
+      document.removeEventListener(
+        "pointerdown",
+        handlePointerDown,
+        true
+      );
+    };
+  }, [menu, close]);
+
+  // =====================================================
+  // EARLY EXIT
+  // =====================================================
 
   if (!menu) return null;
 
@@ -135,16 +202,18 @@ const LeafletContextMenu = forwardRef<
   // =====================================================
   // MAP MENU
   // =====================================================
+
   if (menu.type === "map") {
     return (
       <div
+        ref={menuRef}
         className={styles.menu}
         style={style}
         onMouseEnter={handleEnter}
         onMouseLeave={handleLeave}
+        onPointerDown={(e) => e.stopPropagation()}
       >
         <div className={styles.container}>
-
           <button
             className={styles.item}
             onClick={() => {
@@ -152,14 +221,14 @@ const LeafletContextMenu = forwardRef<
               close();
             }}
           >
-            <MapPin size={14} />
+            <MapPin size={16} />
             Create marker here
           </button>
 
           <div className={styles.separator} />
 
-          {/* CONDITIONAL BULK ACTIONS */}
-          {(lockState === "all-unlocked" || lockState === "mixed") && (
+          {(lockState === "all-unlocked" ||
+            lockState === "mixed") && (
             <button
               className={styles.item}
               onClick={() => {
@@ -167,12 +236,13 @@ const LeafletContextMenu = forwardRef<
                 close();
               }}
             >
-              <Lock size={14} />
+              <Lock size={16} />
               Lock all markers
             </button>
           )}
 
-          {(lockState === "all-locked" || lockState === "mixed") && (
+          {(lockState === "all-locked" ||
+            lockState === "mixed") && (
             <button
               className={styles.item}
               onClick={() => {
@@ -180,11 +250,10 @@ const LeafletContextMenu = forwardRef<
                 close();
               }}
             >
-              <Unlock size={14} />
+              <Unlock size={16} />
               Unlock all markers
             </button>
           )}
-
         </div>
       </div>
     );
@@ -193,13 +262,16 @@ const LeafletContextMenu = forwardRef<
   // =====================================================
   // MARKER MENU
   // =====================================================
+
   if (menu.type === "marker") {
     return (
       <div
+        ref={menuRef}
         className={styles.menu}
         style={style}
         onMouseEnter={handleEnter}
         onMouseLeave={handleLeave}
+        onPointerDown={(e) => e.stopPropagation()}
       >
         <div className={styles.container}>
           <button
@@ -209,7 +281,7 @@ const LeafletContextMenu = forwardRef<
               close();
             }}
           >
-            <Edit2 size={14} />
+            <Edit2 size={16} />
             Edit Marker
           </button>
 
@@ -220,15 +292,17 @@ const LeafletContextMenu = forwardRef<
               close();
             }}
           >
-            {menu.marker.locked ?
+            {menu.marker.locked ? (
               <>
-                <Lock size={14} />
+                <Lock size={16} />
                 Unlock Marker
-              </> : <>
-                <Unlock size={14} />
+              </>
+            ) : (
+              <>
+                <Unlock size={16} />
                 Lock Marker
               </>
-            }
+            )}
           </button>
 
           <button
@@ -238,7 +312,7 @@ const LeafletContextMenu = forwardRef<
               close();
             }}
           >
-            <Trash2 size={14} />
+            <Trash2 size={16} />
             Delete Marker
           </button>
         </div>

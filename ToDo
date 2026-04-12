@@ -7,10 +7,8 @@ LONG TERM:
 + Fix mobile fullscreen
 + Possibly add terrain difficulty with overlay? 
 + Stop adding page to URL in handouts when there is not more than 1 page.
-+ Allow links to be attached to user markers? 
-
-+ IMPORTANT !!! Figure out a way to set interactivity of markers without unmounting and remounting. 
 
 IMMEDIATE: 
-
++Fix loading saves on IOS 
++Fix context menu text highlight on IOS 
 

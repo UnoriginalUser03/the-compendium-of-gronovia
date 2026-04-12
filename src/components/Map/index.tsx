@@ -92,6 +92,7 @@ export default function Map(props: LeafletMapProps) {
   const [layersOpen, setLayersOpen] = useState(false);
 
   const [dialog, setDialog] = useState<DialogState>({ mode: "closed" });
+  const [isAtDefaultView, setIsAtDefaultView] = useState(true);
 
   const [visibleMarkerTypes, setVisibleMarkerTypes] = useState<
     Record<MarkerType, boolean>
@@ -200,24 +201,38 @@ export default function Map(props: LeafletMapProps) {
   const handleLoadRequest = () => {
     const input = document.createElement("input");
     input.type = "file";
-    input.accept = ".mapdata,application/x-mapdata";
+
+    const isIOS =
+      /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+    input.accept = isIOS
+      ? ".mapdata,application/octet-stream,*/*"
+      : ".mapdata";
 
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
 
-      const decoded = await readMapFile(file);
+      try {
+        const decoded = await readMapFile(file);
 
-      setDialog({
-        mode: "load-warning",
-        payload: {
-          userMarkers: decoded.userMarkers,
-          visibleMarkerTypes: decoded.visibleMarkerTypes,
-          sessionCamera: decoded.sessionCamera ?? undefined,
-          userDefaultCamera: decoded.userDefaultCamera ?? undefined,
-          selectedMarkerId: decoded.selectedMarkerId ?? undefined,
-        },
-      });
+        setDialog({
+          mode: "load-warning",
+          payload: {
+            userMarkers: decoded.userMarkers,
+            visibleMarkerTypes: decoded.visibleMarkerTypes,
+            sessionCamera: decoded.sessionCamera ?? undefined,
+            userDefaultCamera: decoded.userDefaultCamera ?? undefined,
+            selectedMarkerId: decoded.selectedMarkerId ?? undefined,
+          },
+        });
+      } catch (err) {
+        setDialog({
+          mode: "load-error",
+          error: err instanceof Error ? err.message : "Invalid map file",
+        });
+      }
     };
 
     input.click();
@@ -247,9 +262,9 @@ export default function Map(props: LeafletMapProps) {
   // =========================================================
   const handleRecenter = () => {
     const target = userDefaultCamera ?? systemDefaultCamera;
+
     updateCamera(target, true, true);
   };
-
   // =========================================================
   // USER DEFAULT CAMERA
   // =========================================================
@@ -261,6 +276,7 @@ export default function Map(props: LeafletMapProps) {
 
     setDefaultViewSaved(true);
     setTimeout(() => setDefaultViewSaved(false), 800);
+    setIsAtDefaultView(true);
   };
 
   const handleClearUserDefaultCamera = () => {
@@ -268,6 +284,7 @@ export default function Map(props: LeafletMapProps) {
     setUserDefaultCameraState(null);
 
     setDefaultViewSaved(true);
+    updateCamera(systemDefaultCamera, true, true);
     setTimeout(() => setDefaultViewSaved(false), 800);
   };
 
@@ -287,19 +304,23 @@ export default function Map(props: LeafletMapProps) {
   }
 
   const handleLockAllMarkers = () => {
+    const now = Date.now();
     setUserMarkers(prev =>
       prev.map(m => ({
         ...m,
         locked: true,
+        updatedAt: now,
       }))
     );
   };
 
   const handleUnlockAllMarkers = () => {
+    const now = Date.now();
     setUserMarkers(prev =>
       prev.map(m => ({
         ...m,
         locked: false,
+        updatedAt: now,
       }))
     );
   };
@@ -311,7 +332,6 @@ export default function Map(props: LeafletMapProps) {
 
 
   const contextMenuRef = useRef<LeafletContextMenuHandle>(null);
-
   // =========================================================
   // RENDER
   // =========================================================
@@ -364,6 +384,8 @@ export default function Map(props: LeafletMapProps) {
               onLinkCopied={onLinkCopied}
               linkCopied={linkCopied}
               defaultViewSaved={defaultViewSaved}
+              isAtDefaultView={isAtDefaultView}
+              setIsAtDefaultView={setIsAtDefaultView}
             />
           </div>
         );
