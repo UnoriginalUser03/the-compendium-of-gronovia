@@ -4,11 +4,4 @@ LONG TERM:
 + Add search 
 + Add graph
 + Add disable button to clouds
-+ Fix mobile fullscreen
-+ Possibly add terrain difficulty with overlay? 
-+ Stop adding page to URL in handouts when there is not more than 1 page.
-
-IMMEDIATE: 
-+Fix loading saves on IOS 
-+Fix context menu text highlight on IOS 
-
++ Fix mobile fullscreeen
