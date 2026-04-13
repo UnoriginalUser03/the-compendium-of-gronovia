@@ -90,7 +90,6 @@ const config: Config = {
         indexPages: true,
       },
     ],
-    ['docusaurus-graph']
   ],
 
   themeConfig: {
